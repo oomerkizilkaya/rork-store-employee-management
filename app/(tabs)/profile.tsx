@@ -18,7 +18,7 @@ import {
   Save
 } from 'lucide-react-native';
 import { UserPosition } from '@/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { positionOptions } from '@/utils/positions';
 
 const getPositionLabel = (position: UserPosition): string => {
@@ -42,6 +42,10 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
+
+  useEffect(() => {
+    setEditedUser(user);
+  }, [user]);
 
   if (!user) return null;
 
@@ -113,7 +117,7 @@ export default function ProfileScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            {editedUser?.profilePhoto ? (
+            {(editedUser?.profilePhoto && editedUser.profilePhoto.trim() !== '') ? (
               <Image source={{ uri: editedUser.profilePhoto }} style={styles.avatarImage} />
             ) : (
               <View style={styles.avatar}>
