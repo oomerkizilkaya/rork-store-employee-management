@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 import { DollarSign, Search, User as UserIcon, X, Calculator, Clock, Calendar as CalendarIcon } from 'lucide-react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, OvertimeRequest, DaySchedule, EmployeeShift } from '@/types';
 import { getPositionLabel } from '@/utils/positions';
@@ -106,7 +106,7 @@ export default function SalariesScreen() {
     }
   };
 
-  const calculateSalary = async (employee: User) => {
+  const calculateSalary = useCallback(async (employee: User) => {
     const salary = employee.salary || 0;
     const monthlyWorkDays = employee.monthlyWorkDays || 26;
     const dailyWorkHours = employee.dailyWorkHours || 8;
@@ -137,7 +137,7 @@ export default function SalariesScreen() {
       overtimeRate,
       offDayRate,
     };
-  };
+  }, []);
 
   const handleSaveSalaryInfo = async () => {
     if (!selectedEmployee) return;
@@ -204,13 +204,13 @@ export default function SalariesScreen() {
     (emp.employeeId && emp.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'TRY',
       minimumFractionDigits: 2,
     }).format(amount);
-  };
+  }, []);
 
   if (!user || user.position !== 'insan_kaynaklari') {
     return (
@@ -272,9 +272,9 @@ export default function SalariesScreen() {
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {filteredEmployees.map((employee) => (
+        {filteredEmployees.map((employee, index) => (
           <EmployeeSalaryCard 
-            key={employee.id} 
+            key={`salary-${employee.id}-${index}`} 
             employee={employee} 
             onEdit={openEditModal}
             calculateSalary={calculateSalary}
@@ -416,7 +416,7 @@ function EmployeeSalaryCard({
       setLoading(false);
     };
     loadSalaryInfo();
-  }, [employee, calculateSalary]);
+  }, [employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, calculateSalary]);
 
   if (loading) {
     return (
