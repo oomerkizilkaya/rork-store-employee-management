@@ -140,8 +140,8 @@ export async function sendOvertimeSubmittedNotification(
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: '⏰ Yeni Extra Mesai Talebi',
-      body: `${employeeName} - ${storeName} için ${hours} saat extra mesai talebi (${date})`,
+      title: '⏰ Yeni Ekstra Mesai Talebi',
+      body: `${employeeName} - ${storeName} için ${hours} saat ekstra mesai talebi (${date})`,
       sound: true,
       priority: Notifications.AndroidNotificationPriority.HIGH,
     },
@@ -164,8 +164,8 @@ export async function sendOvertimeStatusNotification(
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: status === 'approved' ? '✅ Extra Mesai Onaylandı' : '❌ Extra Mesai Reddedildi',
-      body: `${date} tarihli ${hours} saatlik extra mesai talebiniz ${status === 'approved' ? 'onaylandı' : 'reddedildi'}.`,
+      title: status === 'approved' ? '✅ Ekstra Mesai Onaylandı' : '❌ Ekstra Mesai Reddedildi',
+      body: `${date} tarihli ${hours} saatlik ekstra mesai talebiniz ${status === 'approved' ? 'onaylandı' : 'reddedildi'}.`,
       sound: true,
       priority: Notifications.AndroidNotificationPriority.HIGH,
     },

@@ -119,7 +119,7 @@ export default function OvertimeScreen() {
       user?.store || 'Bilinmeyen Mağaza'
     );
     
-    Alert.alert('Başarılı', 'Extra mesai talebiniz oluşturuldu ve müdürünüze bildirim gönderildi');
+    Alert.alert('Başarılı', 'Ekstra mesai talebiniz oluşturuldu ve müdürünüze bildirim gönderildi');
   };
 
   const handleApprove = async (id: string) => {
@@ -178,7 +178,7 @@ export default function OvertimeScreen() {
           style={styles.headerLogo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Extra Mesai</Text>
+        <Text style={styles.title}>Ekstra Mesai</Text>
         {canCreate && (
           <TouchableOpacity 
             style={styles.createButton}
@@ -200,7 +200,7 @@ export default function OvertimeScreen() {
         {filteredRequests.length === 0 && (
           <View style={styles.emptyState}>
             <Clock size={64} color={colors.gray[300]} />
-            <Text style={styles.emptyText}>Extra mesai talebi bulunamadı</Text>
+            <Text style={styles.emptyText}>Ekstra mesai talebi bulunamadı</Text>
           </View>
         )}
         {filteredRequests.map((request) => (
@@ -294,7 +294,7 @@ export default function OvertimeScreen() {
               onPress={(e) => e.stopPropagation()}
             >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Yeni Extra Mesai Talebi</Text>
+              <Text style={styles.modalTitle}>Yeni Ekstra Mesai Talebi</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <X size={24} color={colors.gray[600]} />
               </TouchableOpacity>
@@ -336,7 +336,7 @@ export default function OvertimeScreen() {
                   style={[styles.input, styles.textArea]}
                   value={newRequestReason}
                   onChangeText={setNewRequestReason}
-                  placeholder="Neden extra mesai yapıyorsunuz?"
+                  placeholder="Neden ekstra mesai yapıyorsunuz?"
                   placeholderTextColor={colors.gray[400]}
                   multiline
                   numberOfLines={4}
