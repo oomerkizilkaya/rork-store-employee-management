@@ -261,12 +261,7 @@ export default function DashboardScreen() {
 
       const employeeInfos = await Promise.all(employeeInfoPromises);
 
-      const sortedByOvertime = [...employeeInfos]
-        .filter(e => e.overtimeHours > 0 || e.offDayHours > 0)
-        .sort((a, b) => (b.overtimeHours + b.offDayHours) - (a.overtimeHours + a.offDayHours))
-        .slice(0, 5);
-
-      setTopEmployees(sortedByOvertime);
+      setTopEmployees(employeeInfos);
       setEmployeeStats({
         totalEmployees: activeUsers.length,
         withSalary,
@@ -557,8 +552,8 @@ export default function DashboardScreen() {
         {topEmployees.length > 0 && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Clock size={20} color={colors.warning} />
-              <Text style={styles.cardTitle}>En Çok Mesai Yapanlar</Text>
+              <Users size={20} color={colors.primary} />
+              <Text style={styles.cardTitle}>Tüm Çalışanlar - Mesai & Off Bilgileri</Text>
             </View>
             {topEmployees.map((emp) => (
               <View key={emp.id} style={styles.employeeRow}>
@@ -567,16 +562,12 @@ export default function DashboardScreen() {
                   <Text style={styles.employeeDetail}>{emp.position} • {emp.store}</Text>
                 </View>
                 <View style={styles.employeeHours}>
-                  {emp.overtimeHours > 0 && (
-                    <Text style={[styles.hoursText, { color: colors.warning }]}>
-                      +{emp.overtimeHours.toFixed(1)}sa mesai
-                    </Text>
-                  )}
-                  {emp.offDayHours > 0 && (
-                    <Text style={[styles.hoursText, { color: colors.secondary }]}>
-                      +{emp.offDayHours.toFixed(1)}sa off
-                    </Text>
-                  )}
+                  <Text style={[styles.hoursText, { color: emp.overtimeHours > 0 ? colors.warning : colors.gray[500] }]}>
+                    Mesai: {emp.overtimeHours.toFixed(1)}sa
+                  </Text>
+                  <Text style={[styles.hoursText, { color: emp.offDayHours > 0 ? colors.secondary : colors.gray[500] }]}>
+                    Off: {emp.offDayHours.toFixed(1)}sa
+                  </Text>
                 </View>
               </View>
             ))}
