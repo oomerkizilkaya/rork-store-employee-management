@@ -28,6 +28,9 @@ export type User = {
   terminatedDate?: string;
   terminationReason?: string;
   hasTraining?: boolean;
+  salary?: number;
+  monthlyWorkDays?: number;
+  dailyWorkHours?: number;
 };
 
 export type MediaFile = {
@@ -223,4 +226,19 @@ export type CompanyEvent = {
   region?: string;
   createdBy: string;
   createdAt: string;
+};
+
+export type EmployeeSalaryInfo = {
+  employeeId: string;
+  employeeName: string;
+  position: UserPosition;
+  store: string;
+  salary: number;
+  monthlyWorkDays: number;
+  dailyWorkHours: number;
+  overtimeHours: number;
+  offDayWorkHours: number;
+  overtimePay: number;
+  offDayPay: number;
+  totalPay: number;
 };

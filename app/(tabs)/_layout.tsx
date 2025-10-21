@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Bell, Calendar, Briefcase, FolderOpen, Users, Award, User, MapPin, Clock, LayoutDashboard } from 'lucide-react-native';
+import { Bell, Calendar, Briefcase, FolderOpen, Users, Award, User, MapPin, Clock, LayoutDashboard, DollarSign } from 'lucide-react-native';
 import colors from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -18,6 +18,8 @@ export default function TabLayout() {
     user?.position === 'egitim_muduru' || 
     user?.position === 'egitmen' || 
     user?.position === 'bolge_muduru';
+
+  const canManageSalaries = user?.position === 'insan_kaynaklari';
 
 
 
@@ -103,6 +105,15 @@ export default function TabLayout() {
           options={{
             title: 'Bölgeler',
             tabBarIcon: ({ color, size }) => <MapPin size={size} color={color} />,
+          }}
+        />
+      )}
+      {canManageSalaries && (
+        <Tabs.Screen
+          name="salaries"
+          options={{
+            title: 'Maaş',
+            tabBarIcon: ({ color, size }) => <DollarSign size={size} color={color} />,
           }}
         />
       )}

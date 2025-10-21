@@ -3,7 +3,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 import { Plus, Clock, CheckCircle, XCircle, X, Calendar as CalendarIcon, Store as StoreIcon, User as UserIcon } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendOvertimeSubmittedNotification, sendOvertimeStatusNotification } from '@/utils/notifications';
 import { OvertimeRequest } from '@/types';
 import { canApproveOvertime, canCreateOvertime, canViewRegionalData } from '@/utils/permissions';
@@ -20,37 +21,31 @@ export default function OvertimeScreen() {
   const canCreate = user ? canCreateOvertime(user.position) : true;
   const canViewRegional = user ? canViewRegionalData(user.position) : false;
 
-  const [requests, setRequests] = useState<OvertimeRequest[]>([
-    {
-      id: '1',
-      employeeId: '2',
-      employeeName: 'Mehmet Yılmaz',
-      storeId: '1',
-      storeName: 'Kadıköy',
-      region: 'İstanbul',
-      date: '2025-01-20',
-      hours: 4,
-      reason: 'Envanter çalışması',
-      status: 'pending' as const,
-      requestedAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      employeeId: '3',
-      employeeName: 'Ayşe Kaya',
-      storeId: '2',
-      storeName: 'Beşiktaş',
-      region: 'İstanbul',
-      date: '2025-01-22',
-      hours: 3,
-      reason: 'Özel etkinlik',
-      status: 'approved' as const,
-      requestedAt: new Date().toISOString(),
-      reviewedBy: user?.id,
-      reviewedByName: user ? `${user.firstName} ${user.lastName}` : undefined,
-      reviewedAt: new Date().toISOString(),
-    },
-  ]);
+  const [requests, setRequests] = useState<OvertimeRequest[]>([]);
+
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const loadRequests = async () => {
+    try {
+      const requestsStr = await AsyncStorage.getItem('@mikel_overtime_requests');
+      if (requestsStr) {
+        setRequests(JSON.parse(requestsStr));
+      }
+    } catch (error) {
+      console.error('Ekstra mesai talepleri yükleme hatası:', error);
+    }
+  };
+
+  const saveRequests = async (newRequests: OvertimeRequest[]) => {
+    try {
+      await AsyncStorage.setItem('@mikel_overtime_requests', JSON.stringify(newRequests));
+      setRequests(newRequests);
+    } catch (error) {
+      console.error('Ekstra mesai talepleri kaydetme hatası:', error);
+    }
+  };
 
   const filteredRequests = requests.filter(req => {
     if (canViewRegional) {
@@ -106,7 +101,7 @@ export default function OvertimeScreen() {
       requestedAt: new Date().toISOString(),
     };
 
-    setRequests([newRequest, ...requests]);
+    await saveRequests([newRequest, ...requests]);
     setModalVisible(false);
     setNewRequestDate('');
     setNewRequestHours('');
@@ -126,7 +121,7 @@ export default function OvertimeScreen() {
     const request = requests.find(req => req.id === id);
     if (!request) return;
     
-    setRequests(requests.map(req => 
+    const updatedRequests = requests.map(req => 
       req.id === id ? { 
         ...req, 
         status: 'approved' as const,
@@ -134,7 +129,8 @@ export default function OvertimeScreen() {
         reviewedByName: user ? `${user.firstName} ${user.lastName}` : undefined,
         reviewedAt: new Date().toISOString(),
       } : req
-    ));
+    );
+    await saveRequests(updatedRequests);
     
     await sendOvertimeStatusNotification(
       'approved',
@@ -149,7 +145,7 @@ export default function OvertimeScreen() {
     const request = requests.find(req => req.id === id);
     if (!request) return;
     
-    setRequests(requests.map(req => 
+    const updatedRequests = requests.map(req => 
       req.id === id ? { 
         ...req, 
         status: 'rejected' as const,
@@ -157,7 +153,8 @@ export default function OvertimeScreen() {
         reviewedByName: user ? `${user.firstName} ${user.lastName}` : undefined,
         reviewedAt: new Date().toISOString(),
       } : req
-    ));
+    );
+    await saveRequests(updatedRequests);
     
     await sendOvertimeStatusNotification(
       'rejected',
