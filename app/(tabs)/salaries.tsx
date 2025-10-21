@@ -40,7 +40,7 @@ export default function SalariesScreen() {
     }
   };
 
-  const calculateOvertimeHours = async (employeeId: string): Promise<number> => {
+  const calculateOvertimeHours = useCallback(async (employeeId: string): Promise<number> => {
     try {
       const overtimeStr = await AsyncStorage.getItem('@mikel_overtime_requests');
       if (!overtimeStr) {
@@ -76,9 +76,9 @@ export default function SalariesScreen() {
       console.error('Ekstra mesai hesaplama hatası:', error);
       return 0;
     }
-  };
+  }, []);
 
-  const calculateOffDayHours = async (employeeId: string): Promise<number> => {
+  const calculateOffDayHours = useCallback(async (employeeId: string): Promise<number> => {
     try {
       const shiftsStr = await AsyncStorage.getItem('@mikel_shifts');
       if (!shiftsStr) return 0;
@@ -116,7 +116,7 @@ export default function SalariesScreen() {
       console.error('Off günü hesaplama hatası:', error);
       return 0;
     }
-  };
+  }, []);
 
   const calculateSalary = useCallback(async (employee: User) => {
     const salary = employee.salary || 0;
@@ -153,7 +153,7 @@ export default function SalariesScreen() {
       overtimeRate,
       offDayRate,
     };
-  }, []);
+  }, [calculateOvertimeHours, calculateOffDayHours]);
 
   const handleSaveSalaryInfo = async () => {
     if (!selectedEmployee) return;
@@ -291,7 +291,7 @@ export default function SalariesScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {filteredEmployees.map((employee, index) => (
           <EmployeeSalaryCard 
-            key={`salary-${employee.id || index}`} 
+            key={employee.id ? `salary-${employee.id}` : `salary-index-${index}`} 
             employee={employee} 
             onEdit={openEditModal}
             calculateSalary={calculateSalary}
@@ -438,7 +438,7 @@ function EmployeeSalaryCard({
       setLoading(false);
     };
     loadSalaryInfo();
-  }, [employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, refreshTrigger]);
+  }, [calculateSalary, employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, refreshTrigger]);
 
   if (loading) {
     return (
