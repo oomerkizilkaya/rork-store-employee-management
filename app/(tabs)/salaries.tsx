@@ -291,7 +291,7 @@ export default function SalariesScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {filteredEmployees.map((employee, index) => (
           <EmployeeSalaryCard 
-            key={`salary-${employee.id || `employee-${index}`}`} 
+            key={employee.id ? `salary-${employee.id}` : `salary-index-${index}`} 
             employee={employee} 
             onEdit={openEditModal}
             calculateSalary={calculateSalary}
@@ -430,13 +430,15 @@ function EmployeeSalaryCard({
 
   useEffect(() => {
     const loadSalaryInfo = async () => {
+      console.log(`🔄 Maaş bilgisi yükleniyor - ${employee.firstName} ${employee.lastName}`);
       setLoading(true);
       const info = await calculateSalary(employee);
+      console.log(`✅ Maaş bilgisi yüklendi:`, info);
       setSalaryInfo(info);
       setLoading(false);
     };
     loadSalaryInfo();
-  }, [employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, calculateSalary, refreshTrigger]);
+  }, [employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, refreshTrigger]);
 
   if (loading) {
     return (
