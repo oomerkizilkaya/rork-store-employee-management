@@ -409,15 +409,14 @@ function EmployeeSalaryCard({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadSalaryInfo = async () => {
+      setLoading(true);
+      const info = await calculateSalary(employee);
+      setSalaryInfo(info);
+      setLoading(false);
+    };
     loadSalaryInfo();
-  }, []);
-
-  const loadSalaryInfo = async () => {
-    setLoading(true);
-    const info = await calculateSalary(employee);
-    setSalaryInfo(info);
-    setLoading(false);
-  };
+  }, [employee, calculateSalary]);
 
   if (loading) {
     return (
