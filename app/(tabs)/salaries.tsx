@@ -501,7 +501,7 @@ function EmployeeSalaryCard({
               <Text style={styles.calculationTitle}>Bu Ay Hesaplama</Text>
               
               {salaryInfo.overtimeHours > 0 && (
-                <View style={styles.calculationRow}>
+                <View key="overtime-calc" style={styles.calculationRow}>
                   <Text style={styles.calculationLabel}>
                     Ekstra Mesai ({salaryInfo.overtimeHours.toFixed(1)} saat × {formatCurrency(salaryInfo.overtimeRate)}/saat)
                   </Text>
@@ -512,7 +512,7 @@ function EmployeeSalaryCard({
               )}
 
               {salaryInfo.offDayHours > 0 && (
-                <View style={styles.calculationRow}>
+                <View key="offday-calc" style={styles.calculationRow}>
                   <Text style={styles.calculationLabel}>
                     Pazar Günü ({salaryInfo.offDayHours.toFixed(1)} saat × {formatCurrency(salaryInfo.offDayRate)}/saat)
                   </Text>
@@ -522,7 +522,7 @@ function EmployeeSalaryCard({
                 </View>
               )}
 
-              <View style={styles.totalRow}>
+              <View key="total-calc" style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Toplam Ödeme</Text>
                 <Text style={styles.totalValue}>{formatCurrency(salaryInfo.totalPay)}</Text>
               </View>
