@@ -2,10 +2,10 @@ import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { Calendar, Gift, PartyPopper, Users, Lock } from 'lucide-react-native';
+import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase } from 'lucide-react-native';
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, LeaveBalance, Holiday, CompanyEvent } from '@/types';
+import { User, LeaveBalance, Holiday, CompanyEvent, OvertimeRequest, EmployeeShift } from '@/types';
 
 type UpcomingLeave = {
   employeeName: string;
@@ -20,6 +20,24 @@ type UpcomingBirthday = {
   daysUntil: number;
 };
 
+type EmployeeStats = {
+  totalEmployees: number;
+  withSalary: number;
+  withoutSalary: number;
+  totalOvertime: number;
+  totalOffDays: number;
+};
+
+type EmployeeInfo = {
+  id: string;
+  name: string;
+  position: string;
+  store: string;
+  salary?: number;
+  overtimeHours: number;
+  offDayHours: number;
+};
+
 export default function DashboardScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
@@ -29,6 +47,8 @@ export default function DashboardScreen() {
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [events, setEvents] = useState<CompanyEvent[]>([]);
   const [departmentStats, setDepartmentStats] = useState<{ position: string; count: number }[]>([]);
+  const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
+  const [topEmployees, setTopEmployees] = useState<EmployeeInfo[]>([]);
 
   const loadLeaveBalance = useCallback(async () => {
     try {
@@ -131,6 +151,72 @@ export default function DashboardScreen() {
     }
   }, [user]);
 
+  const calculateOvertimeHours = async (employeeId: string): Promise<number> => {
+    try {
+      const overtimeStr = await AsyncStorage.getItem('@mikel_overtime_requests');
+      if (!overtimeStr) return 0;
+
+      const requests: OvertimeRequest[] = JSON.parse(overtimeStr);
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+
+      const approvedHours = requests
+        .filter(req => {
+          const reqDate = new Date(req.date);
+          return req.employeeId === employeeId && 
+                 req.status === 'approved' && 
+                 reqDate.getMonth() === currentMonth &&
+                 reqDate.getFullYear() === currentYear;
+        })
+        .reduce((sum, req) => sum + req.hours, 0);
+
+      return approvedHours;
+    } catch (error) {
+      console.error('Ekstra mesai hesaplama hatası:', error);
+      return 0;
+    }
+  };
+
+  const calculateOffDayHours = async (employeeId: string): Promise<number> => {
+    try {
+      const shiftsStr = await AsyncStorage.getItem('@mikel_shifts');
+      if (!shiftsStr) return 0;
+
+      const allShifts: any[] = JSON.parse(shiftsStr);
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+
+      let offDayHours = 0;
+
+      for (const shift of allShifts) {
+        const weekStart = new Date(shift.weekStart);
+        if (weekStart.getMonth() !== currentMonth || weekStart.getFullYear() !== currentYear) {
+          continue;
+        }
+
+        const employeeShift = shift.employees?.find((emp: EmployeeShift) => emp.employeeId === employeeId);
+        if (!employeeShift) continue;
+
+        employeeShift.days?.forEach((day: any) => {
+          const dayDate = new Date(day.date);
+          const dayOfWeek = dayDate.getDay();
+          
+          if (dayOfWeek === 0 && day.startTime && day.endTime && !day.isLeave) {
+            const [startHour, startMin] = day.startTime.split(':').map(Number);
+            const [endHour, endMin] = day.endTime.split(':').map(Number);
+            const hours = (endHour - startHour) + (endMin - startMin) / 60;
+            offDayHours += hours;
+          }
+        });
+      }
+
+      return offDayHours;
+    } catch (error) {
+      console.error('Off günü hesaplama hatası:', error);
+      return 0;
+    }
+  };
+
   const loadDepartmentStats = useCallback(async () => {
     try {
       const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
@@ -149,6 +235,45 @@ export default function DashboardScreen() {
       }));
       
       setDepartmentStats(stats);
+
+      const withSalary = activeUsers.filter(u => u.salary && u.salary > 0).length;
+      const withoutSalary = activeUsers.length - withSalary;
+
+      let totalOvertime = 0;
+      let totalOffDays = 0;
+
+      const employeeInfoPromises = activeUsers.map(async (u) => {
+        const overtime = await calculateOvertimeHours(u.id);
+        const offDay = await calculateOffDayHours(u.id);
+        totalOvertime += overtime;
+        totalOffDays += offDay;
+        
+        return {
+          id: u.id,
+          name: `${u.firstName} ${u.lastName}`,
+          position: getPositionLabel(u.position),
+          store: u.store,
+          salary: u.salary,
+          overtimeHours: overtime,
+          offDayHours: offDay,
+        };
+      });
+
+      const employeeInfos = await Promise.all(employeeInfoPromises);
+
+      const sortedByOvertime = [...employeeInfos]
+        .filter(e => e.overtimeHours > 0 || e.offDayHours > 0)
+        .sort((a, b) => (b.overtimeHours + b.offDayHours) - (a.overtimeHours + a.offDayHours))
+        .slice(0, 5);
+
+      setTopEmployees(sortedByOvertime);
+      setEmployeeStats({
+        totalEmployees: activeUsers.length,
+        withSalary,
+        withoutSalary,
+        totalOvertime,
+        totalOffDays,
+      });
     } catch (error) {
       console.error('Departman istatistikleri yükleme hatası:', error);
     }
@@ -398,11 +523,71 @@ export default function DashboardScreen() {
           </View>
         )}
 
+        {employeeStats && (
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Briefcase size={20} color={colors.primary} />
+              <Text style={styles.cardTitle}>Genel İstatistikler</Text>
+            </View>
+            <View style={styles.statsGrid}>
+              <View style={styles.statBox}>
+                <Users size={24} color={colors.primary} />
+                <Text style={styles.statBoxValue}>{employeeStats.totalEmployees}</Text>
+                <Text style={styles.statBoxLabel}>Toplam Çalışan</Text>
+              </View>
+              <View style={styles.statBox}>
+                <DollarSign size={24} color={colors.success} />
+                <Text style={styles.statBoxValue}>{employeeStats.withSalary}</Text>
+                <Text style={styles.statBoxLabel}>Maaş Tanımlı</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Clock size={24} color={colors.warning} />
+                <Text style={styles.statBoxValue}>{employeeStats.totalOvertime.toFixed(1)}</Text>
+                <Text style={styles.statBoxLabel}>Toplam Mesai (sa)</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Calendar size={24} color={colors.secondary} />
+                <Text style={styles.statBoxValue}>{employeeStats.totalOffDays.toFixed(1)}</Text>
+                <Text style={styles.statBoxLabel}>Toplam Off (sa)</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {topEmployees.length > 0 && (
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Clock size={20} color={colors.warning} />
+              <Text style={styles.cardTitle}>En Çok Mesai Yapanlar</Text>
+            </View>
+            {topEmployees.map((emp) => (
+              <View key={emp.id} style={styles.employeeRow}>
+                <View style={styles.employeeInfo}>
+                  <Text style={styles.employeeName}>{emp.name}</Text>
+                  <Text style={styles.employeeDetail}>{emp.position} • {emp.store}</Text>
+                </View>
+                <View style={styles.employeeHours}>
+                  {emp.overtimeHours > 0 && (
+                    <Text style={[styles.hoursText, { color: colors.warning }]}>
+                      +{emp.overtimeHours.toFixed(1)}sa mesai
+                    </Text>
+                  )}
+                  {emp.offDayHours > 0 && (
+                    <Text style={[styles.hoursText, { color: colors.secondary }]}>
+                      +{emp.offDayHours.toFixed(1)}sa off
+                    </Text>
+                  )}
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
         {departmentStats.length > 0 && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Users size={20} color={colors.primary} />
-              <Text style={styles.cardTitle}>Çalışan Dağılımı</Text>
+              <Text style={styles.cardTitle}>Pozisyon Dağılımı</Text>
             </View>
             <View style={styles.statsContainer}>
               {departmentStats.map((stat, index) => {
@@ -656,6 +841,60 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: colors.primary,
     borderRadius: 4,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  statBox: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: colors.gray[50],
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    gap: 8,
+  },
+  statBoxValue: {
+    fontSize: 24,
+    fontWeight: '800' as const,
+    color: colors.gray[900],
+  },
+  statBoxLabel: {
+    fontSize: 12,
+    color: colors.gray[600],
+    textAlign: 'center',
+    fontWeight: '600' as const,
+  },
+  employeeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[100],
+  },
+  employeeInfo: {
+    flex: 1,
+  },
+  employeeName: {
+    fontSize: 15,
+    fontWeight: '600' as const,
+    color: colors.gray[900],
+    marginBottom: 4,
+  },
+  employeeDetail: {
+    fontSize: 13,
+    color: colors.gray[600],
+  },
+  employeeHours: {
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  hoursText: {
+    fontSize: 12,
+    fontWeight: '600' as const,
   },
   noAccessContainer: {
     flex: 1,
