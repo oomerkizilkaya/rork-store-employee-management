@@ -160,11 +160,11 @@ export default function SalariesScreen() {
   const handleSaveSalaryInfo = async () => {
     if (!selectedEmployee) return;
 
-    const salary = parseFloat(salaryData.salary);
+    const salary = parseFloat(salaryData.salary.replace(',', '.'));
     const monthlyWorkDays = parseInt(salaryData.monthlyWorkDays);
-    const dailyWorkHours = parseFloat(salaryData.dailyWorkHours);
-    const overtimeHours = parseFloat(salaryData.overtimeHours) || 0;
-    const offDayHours = parseFloat(salaryData.offDayHours) || 0;
+    const dailyWorkHours = parseFloat(salaryData.dailyWorkHours.replace(',', '.'));
+    const overtimeHours = parseFloat(salaryData.overtimeHours.replace(',', '.')) || 0;
+    const offDayHours = parseFloat(salaryData.offDayHours.replace(',', '.')) || 0;
 
     if (isNaN(salary) || salary <= 0) {
       Alert.alert('Hata', 'Geçerli bir maaş giriniz');
@@ -394,9 +394,12 @@ export default function SalariesScreen() {
                     <Text style={styles.inputLabel}>Günlük Çalışma Saati</Text>
                     <TextInput
                       style={styles.input}
-                      placeholder="8"
+                      placeholder="8 veya 8,5 veya 8.5"
                       value={salaryData.dailyWorkHours}
-                      onChangeText={(text) => setSalaryData({ ...salaryData, dailyWorkHours: text })}
+                      onChangeText={(text) => {
+                        const cleaned = text.replace(/[^0-9.,]/g, '');
+                        setSalaryData({ ...salaryData, dailyWorkHours: cleaned });
+                      }}
                       keyboardType="decimal-pad"
                       placeholderTextColor={colors.gray[400]}
                     />
@@ -406,9 +409,12 @@ export default function SalariesScreen() {
                     <Text style={styles.inputLabel}>Bu Ay Mesai Saati (Ekstra Çalışma)</Text>
                     <TextInput
                       style={styles.input}
-                      placeholder="0"
+                      placeholder="0 veya 9,5 veya 9.5"
                       value={salaryData.overtimeHours}
-                      onChangeText={(text) => setSalaryData({ ...salaryData, overtimeHours: text })}
+                      onChangeText={(text) => {
+                        const cleaned = text.replace(/[^0-9.,]/g, '');
+                        setSalaryData({ ...salaryData, overtimeHours: cleaned });
+                      }}
                       keyboardType="decimal-pad"
                       placeholderTextColor={colors.gray[400]}
                     />
@@ -418,9 +424,12 @@ export default function SalariesScreen() {
                     <Text style={styles.inputLabel}>Bu Ay Off Günü Saati (Pazar Çalışması)</Text>
                     <TextInput
                       style={styles.input}
-                      placeholder="0"
+                      placeholder="0 veya 8,5 veya 8.5"
                       value={salaryData.offDayHours}
-                      onChangeText={(text) => setSalaryData({ ...salaryData, offDayHours: text })}
+                      onChangeText={(text) => {
+                        const cleaned = text.replace(/[^0-9.,]/g, '');
+                        setSalaryData({ ...salaryData, offDayHours: cleaned });
+                      }}
                       keyboardType="decimal-pad"
                       placeholderTextColor={colors.gray[400]}
                     />
