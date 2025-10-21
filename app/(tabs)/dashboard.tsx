@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { Calendar, Gift, PartyPopper, Users } from 'lucide-react-native';
+import { Calendar, Gift, PartyPopper, Users, Lock } from 'lucide-react-native';
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, LeaveBalance, Holiday, CompanyEvent } from '@/types';
@@ -199,6 +199,30 @@ export default function DashboardScreen() {
   };
 
   if (!user) return null;
+
+  if (user.position !== 'insan_kaynaklari') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.headerWrapper}>
+          <View style={[styles.headerBackground, { height: insets.top }]} />
+          <View style={styles.topBar}>
+            <Image 
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
+            <Text style={styles.topBarTitle}>Dashboard</Text>
+          </View>
+        </View>
+        
+        <View style={styles.noAccessContainer}>
+          <Lock size={48} color={colors.gray[400]} />
+          <Text style={styles.noAccessTitle}>Erişim Yetkiniz Yok</Text>
+          <Text style={styles.noAccessText}>Dashboard'a sadece İnsan Kaynakları yetkileri erişebilir.</Text>
+        </View>
+      </View>
+    );
+  }
 
   const progressPercentage = leaveBalance 
     ? (leaveBalance.usedDays / leaveBalance.totalDays) * 100 
@@ -632,5 +656,24 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: colors.primary,
     borderRadius: 4,
+  },
+  noAccessContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  noAccessTitle: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  noAccessText: {
+    fontSize: 16,
+    color: colors.gray[600],
+    textAlign: 'center',
+    lineHeight: 24,
   },
 });

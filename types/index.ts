@@ -19,6 +19,7 @@ export type User = {
   store: string;
   position: UserPosition;
   startDate: string;
+  birthDate?: string;
   profilePhoto?: string;
   region?: string;
   isApproved?: boolean;

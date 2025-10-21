@@ -281,7 +281,7 @@ export default function EmployeesScreen() {
   const handleExportToExcel = async () => {
     try {
       const csvContent = [
-        ['Sicil No', 'Ad', 'Soyad', 'Email', 'Telefon', 'Mağaza', 'Pozisyon', 'Başlangıç Tarihi', 'İşten Çıkarıldı', 'Çıkarılma Tarihi', 'Sebep'].join(','),
+        ['Sicil No', 'Ad', 'Soyad', 'Email', 'Telefon', 'Mağaza', 'Pozisyon', 'Başlangıç Tarihi', 'Doğum Tarihi', 'İşten Çıkarıldı', 'Çıkarılma Tarihi', 'Sebep'].join(','),
         ...filteredEmployees.map(emp => [
           emp.employeeId || '-',
           emp.firstName,
@@ -291,6 +291,7 @@ export default function EmployeesScreen() {
           emp.store,
           getPositionLabel(emp.position),
           new Date(emp.startDate).toLocaleDateString('tr-TR'),
+          emp.birthDate ? new Date(emp.birthDate).toLocaleDateString('tr-TR') : '-',
           emp.isTerminated ? 'Evet' : 'Hayır',
           emp.terminatedDate ? new Date(emp.terminatedDate).toLocaleDateString('tr-TR') : '-',
           emp.terminationReason || '-'

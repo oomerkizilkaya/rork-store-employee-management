@@ -31,6 +31,7 @@ export default function RegisterScreen() {
     region: '',
     position: 'servis_personeli' as UserPosition,
     startDate: new Date().toISOString().split('T')[0],
+    birthDate: '',
     password: '',
     confirmPassword: '',
   });
@@ -70,9 +71,9 @@ export default function RegisterScreen() {
   ];
 
   const handleRegister = async () => {
-    const { firstName, lastName, email, phone, store, position, startDate, password, confirmPassword } = formData;
+    const { firstName, lastName, email, phone, store, position, startDate, birthDate, password, confirmPassword } = formData;
 
-    if (!firstName || !lastName || !email || !phone || !store || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !phone || !store || !birthDate || !password || !confirmPassword) {
       Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
       return;
     }
@@ -109,6 +110,7 @@ export default function RegisterScreen() {
         region,
         position,
         startDate,
+        birthDate,
         password,
       });
       console.log('✅ Kayıt fonksiyonu tamamlandı');
@@ -243,6 +245,17 @@ export default function RegisterScreen() {
                 placeholder="YYYY-MM-DD"
                 value={formData.startDate}
                 onChangeText={(text) => setFormData({ ...formData, startDate: text })}
+                editable={!loading}
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Doğum Tarihi *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="YYYY-MM-DD"
+                value={formData.birthDate}
+                onChangeText={(text) => setFormData({ ...formData, birthDate: text })}
                 editable={!loading}
               />
             </View>
