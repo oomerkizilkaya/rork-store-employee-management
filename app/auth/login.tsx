@@ -26,26 +26,31 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
-      return;
-    }
-
-    setLoading(true);
-    console.log('=== GİRİŞ DENENİYOR ===');
-    console.log('Email:', email);
-    console.log('Şifre uzunluğu:', password.length);
-    
     try {
+      console.log('=== GİRİŞ BUTONU TIKLANDI ===');
+      
+      if (!email || !password) {
+        console.log('⚠️ Boş alan kontrolü başarısız');
+        Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
+        return;
+      }
+
+      setLoading(true);
+      console.log('=== GİRİŞ DENENİYOR ===');
+      console.log('Email:', email);
+      console.log('Şifre uzunluğu:', password.length);
+      
       await login(email.trim(), password);
-      console.log('✅ Giriş başarılı!');
-      router.replace('/(tabs)/announcements');
+      console.log('✅ Giriş başarılı! Yönlendiriliyor...');
+      
+      setTimeout(() => {
+        router.replace('/(tabs)/announcements');
+      }, 100);
     } catch (error) {
       console.error('❌ Giriş hatası:', error);
-      const errorMessage = (error as Error).message;
+      const errorMessage = (error as Error).message || 'Giriş başarısız';
       
       Alert.alert('Giriş Başarısız', errorMessage);
-    } finally {
       setLoading(false);
     }
   };
