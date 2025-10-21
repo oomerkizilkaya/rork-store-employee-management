@@ -43,24 +43,34 @@ export default function SalariesScreen() {
   const calculateOvertimeHours = async (employeeId: string): Promise<number> => {
     try {
       const overtimeStr = await AsyncStorage.getItem('@mikel_overtime_requests');
-      if (!overtimeStr) return 0;
+      if (!overtimeStr) {
+        console.log('📊 Ekstra mesai verisi bulunamadı');
+        return 0;
+      }
 
       const requests: OvertimeRequest[] = JSON.parse(overtimeStr);
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
 
+      console.log(`📊 Toplam ekstra mesai talebi: ${requests.length}`);
+      console.log(`📊 Şu anki ay: ${currentMonth + 1}, Yıl: ${currentYear}`);
+
       const approvedHours = requests
         .filter(req => {
           const reqDate = new Date(req.date);
-          return (
-            req.employeeId === employeeId &&
-            req.status === 'approved' &&
-            reqDate.getMonth() === currentMonth &&
-            reqDate.getFullYear() === currentYear
-          );
+          const isMatchingEmployee = req.employeeId === employeeId;
+          const isApproved = req.status === 'approved';
+          const isCurrentMonth = reqDate.getMonth() === currentMonth;
+          const isCurrentYear = reqDate.getFullYear() === currentYear;
+          
+          console.log(`📊 Talep: ${req.employeeName} - ${req.hours} saat - ${req.status} - ${reqDate.toLocaleDateString('tr-TR')}`);
+          console.log(`   Employee match: ${isMatchingEmployee}, Approved: ${isApproved}, Month: ${isCurrentMonth}, Year: ${isCurrentYear}`);
+          
+          return isMatchingEmployee && isApproved && isCurrentMonth && isCurrentYear;
         })
         .reduce((sum, req) => sum + req.hours, 0);
 
+      console.log(`📊 Toplam onaylı ekstra mesai saati: ${approvedHours}`);
       return approvedHours;
     } catch (error) {
       console.error('Ekstra mesai hesaplama hatası:', error);
@@ -501,7 +511,7 @@ function EmployeeSalaryCard({
               <Text style={styles.calculationTitle}>Bu Ay Hesaplama</Text>
               
               {salaryInfo.overtimeHours > 0 && (
-                <View key="overtime-calc" style={styles.calculationRow}>
+                <View style={styles.calculationRow}>
                   <Text style={styles.calculationLabel}>
                     Ekstra Mesai ({salaryInfo.overtimeHours.toFixed(1)} saat × {formatCurrency(salaryInfo.overtimeRate)}/saat)
                   </Text>
@@ -512,7 +522,7 @@ function EmployeeSalaryCard({
               )}
 
               {salaryInfo.offDayHours > 0 && (
-                <View key="offday-calc" style={styles.calculationRow}>
+                <View style={styles.calculationRow}>
                   <Text style={styles.calculationLabel}>
                     Pazar Günü ({salaryInfo.offDayHours.toFixed(1)} saat × {formatCurrency(salaryInfo.offDayRate)}/saat)
                   </Text>
@@ -522,7 +532,7 @@ function EmployeeSalaryCard({
                 </View>
               )}
 
-              <View key="total-calc" style={styles.totalRow}>
+              <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Toplam Ödeme</Text>
                 <Text style={styles.totalValue}>{formatCurrency(salaryInfo.totalPay)}</Text>
               </View>
