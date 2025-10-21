@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Bell, Calendar, Briefcase, FolderOpen, Users, Award, User, MapPin, Clock } from 'lucide-react-native';
+import { Bell, Calendar, Briefcase, FolderOpen, Users, Award, User, MapPin, Clock, LayoutDashboard } from 'lucide-react-native';
 import colors from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -37,6 +37,13 @@ export default function TabLayout() {
             },
           }}
         >
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+        }}
+      />
       <Tabs.Screen
         name="announcements"
         options={{

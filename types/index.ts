@@ -172,3 +172,54 @@ export type AttendanceRecord = {
   checkInReason?: string;
   checkOutReason?: string;
 };
+
+export type LeaveType = 'yillik' | 'hastalik' | 'ucretsiz' | 'dogum' | 'evlilik' | 'olum' | 'babalik';
+
+export type LeaveRequest = {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  employeePosition: UserPosition;
+  storeId: string;
+  storeName: string;
+  region?: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string;
+  reviewedBy?: string;
+  reviewedByName?: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+};
+
+export type LeaveBalance = {
+  employeeId: string;
+  year: number;
+  totalDays: number;
+  usedDays: number;
+  remainingDays: number;
+};
+
+export type Holiday = {
+  id: string;
+  name: string;
+  date: string;
+  type: 'national' | 'religious';
+};
+
+export type CompanyEvent = {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  storeId?: string;
+  storeName?: string;
+  region?: string;
+  createdBy: string;
+  createdAt: string;
+};
