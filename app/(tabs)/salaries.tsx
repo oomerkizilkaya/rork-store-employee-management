@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
@@ -293,81 +293,102 @@ export default function SalariesScreen() {
           setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
         }}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Maaş Bilgileri</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisible(false);
-                  setSelectedEmployee(null);
-                  setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
-                }}
+        <KeyboardAvoidingView 
+          style={styles.modalContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <TouchableOpacity 
+            activeOpacity={1}
+            style={styles.modalOverlay}
+            onPress={() => {
+              setModalVisible(false);
+              setSelectedEmployee(null);
+              setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+            }}
+          >
+            <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.scrollViewContent}
+                bounces={false}
               >
-                <X size={24} color={colors.gray[500]} />
-              </TouchableOpacity>
-            </View>
+                <View style={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Maaş Bilgileri</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setModalVisible(false);
+                        setSelectedEmployee(null);
+                        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+                      }}
+                    >
+                      <X size={24} color={colors.gray[500]} />
+                    </TouchableOpacity>
+                  </View>
 
-            <Text style={styles.modalDescription}>
-              {selectedEmployee?.firstName} {selectedEmployee?.lastName}
-            </Text>
+                  <Text style={styles.modalDescription}>
+                    {selectedEmployee?.firstName} {selectedEmployee?.lastName}
+                  </Text>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Aylık Maaş (₺)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="17000"
-                value={salaryData.salary}
-                onChangeText={(text) => setSalaryData({ ...salaryData, salary: text })}
-                keyboardType="numeric"
-                placeholderTextColor={colors.gray[400]}
-              />
-            </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Aylık Maaş (₺)</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="17000"
+                      value={salaryData.salary}
+                      onChangeText={(text) => setSalaryData({ ...salaryData, salary: text })}
+                      keyboardType="numeric"
+                      placeholderTextColor={colors.gray[400]}
+                    />
+                  </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Aylık Çalışma Günü</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="26"
-                value={salaryData.monthlyWorkDays}
-                onChangeText={(text) => setSalaryData({ ...salaryData, monthlyWorkDays: text })}
-                keyboardType="numeric"
-                placeholderTextColor={colors.gray[400]}
-              />
-            </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Aylık Çalışma Günü</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="26"
+                      value={salaryData.monthlyWorkDays}
+                      onChangeText={(text) => setSalaryData({ ...salaryData, monthlyWorkDays: text })}
+                      keyboardType="numeric"
+                      placeholderTextColor={colors.gray[400]}
+                    />
+                  </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Günlük Çalışma Saati</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="8"
-                value={salaryData.dailyWorkHours}
-                onChangeText={(text) => setSalaryData({ ...salaryData, dailyWorkHours: text })}
-                keyboardType="numeric"
-                placeholderTextColor={colors.gray[400]}
-              />
-            </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Günlük Çalışma Saati</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="8"
+                      value={salaryData.dailyWorkHours}
+                      onChangeText={(text) => setSalaryData({ ...salaryData, dailyWorkHours: text })}
+                      keyboardType="numeric"
+                      placeholderTextColor={colors.gray[400]}
+                    />
+                  </View>
 
-            <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => {
-                  setModalVisible(false);
-                  setSelectedEmployee(null);
-                  setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
-                }}
-              >
-                <Text style={styles.cancelButtonText}>İptal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.confirmButton}
-                onPress={handleSaveSalaryInfo}
-              >
-                <Text style={styles.confirmButtonText}>Kaydet</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity 
+                      style={styles.cancelButton}
+                      onPress={() => {
+                        setModalVisible(false);
+                        setSelectedEmployee(null);
+                        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+                      }}
+                    >
+                      <Text style={styles.cancelButtonText}>İptal</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={styles.confirmButton}
+                      onPress={handleSaveSalaryInfo}
+                    >
+                      <Text style={styles.confirmButtonText}>Kaydet</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </ScrollView>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -775,9 +796,16 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalOverlay: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   modalContent: {
     backgroundColor: colors.white,
