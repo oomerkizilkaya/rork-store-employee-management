@@ -21,9 +21,11 @@ export default function SalariesScreen() {
     dailyWorkHours: '8',
   });
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
   useEffect(() => {
     loadEmployees();
-  }, []);
+  }, [refreshKey]);
 
   const loadEmployees = async () => {
     try {
@@ -117,6 +119,10 @@ export default function SalariesScreen() {
     const overtimeHours = await calculateOvertimeHours(employee.id);
     const offDayHours = await calculateOffDayHours(employee.id);
     
+    console.log(`📊 Maaş hesaplama - ${employee.firstName} ${employee.lastName}:`);
+    console.log(`  - Ekstra mesai saati: ${overtimeHours}`);
+    console.log(`  - Pazar günü saati: ${offDayHours}`);
+    
     const overtimeRate = hourlyRate * 1.5;
     const offDayRate = hourlyRate * 2;
     
@@ -175,6 +181,7 @@ export default function SalariesScreen() {
 
         await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
         await loadEmployees();
+        setRefreshKey(prev => prev + 1);
         
         Alert.alert('Başarılı', 'Maaş bilgileri kaydedildi');
         setModalVisible(false);
@@ -272,13 +279,14 @@ export default function SalariesScreen() {
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {filteredEmployees.map((employee, index) => (
+        {filteredEmployees.map((employee) => (
           <EmployeeSalaryCard 
-            key={`salary-${employee.id}-${index}`} 
+            key={`salary-${employee.id}`} 
             employee={employee} 
             onEdit={openEditModal}
             calculateSalary={calculateSalary}
             formatCurrency={formatCurrency}
+            refreshTrigger={refreshKey}
           />
         ))}
       </ScrollView>
@@ -398,12 +406,14 @@ function EmployeeSalaryCard({
   employee, 
   onEdit, 
   calculateSalary,
-  formatCurrency 
+  formatCurrency,
+  refreshTrigger 
 }: { 
   employee: User; 
   onEdit: (emp: User) => void;
   calculateSalary: (emp: User) => Promise<any>;
   formatCurrency: (amount: number) => string;
+  refreshTrigger: number;
 }) {
   const [salaryInfo, setSalaryInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -416,7 +426,7 @@ function EmployeeSalaryCard({
       setLoading(false);
     };
     loadSalaryInfo();
-  }, [employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, calculateSalary]);
+  }, [employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, calculateSalary, refreshTrigger]);
 
   if (loading) {
     return (
