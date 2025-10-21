@@ -43,9 +43,8 @@ export default function LoginScreen() {
       await login(email.trim(), password);
       console.log('✅ Giriş başarılı! Yönlendiriliyor...');
       
-      setTimeout(() => {
-        router.replace('/(tabs)/announcements');
-      }, 100);
+      setLoading(false);
+      router.replace('/(tabs)/announcements');
     } catch (error) {
       console.error('❌ Giriş hatası:', error);
       const errorMessage = (error as Error).message || 'Giriş başarısız';
