@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase } from 'lucide-react-native';
+import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase, User as UserIcon, Cake, Award, TrendingUp } from 'lucide-react-native';
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, LeaveBalance, Holiday, CompanyEvent, OvertimeRequest, EmployeeShift } from '@/types';
@@ -36,6 +36,22 @@ type EmployeeInfo = {
   salary?: number;
   overtimeHours: number;
   offDayHours: number;
+  profilePhoto?: string;
+};
+
+type LeaveInfo = {
+  id: string;
+  employeeName: string;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  daysLeft: number;
+};
+
+type PositionDistribution = {
+  position: string;
+  count: number;
+  color: string;
 };
 
 export default function DashboardScreen() {
@@ -49,6 +65,8 @@ export default function DashboardScreen() {
   const [departmentStats, setDepartmentStats] = useState<{ position: string; count: number }[]>([]);
   const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
   const [topEmployees, setTopEmployees] = useState<EmployeeInfo[]>([]);
+  const [upcomingLeavesList, setUpcomingLeavesList] = useState<LeaveInfo[]>([]);
+  const [positionDistribution, setPositionDistribution] = useState<PositionDistribution[]>([]);
 
   const loadLeaveBalance = useCallback(async () => {
     try {
@@ -77,7 +95,35 @@ export default function DashboardScreen() {
 
   const loadUpcomingLeaves = useCallback(async () => {
     try {
-      setUpcomingLeaves([]);
+      const shiftsStr = await AsyncStorage.getItem('@mikel_shifts');
+      if (!shiftsStr) return;
+
+      const allShifts: any[] = JSON.parse(shiftsStr);
+      const today = new Date();
+      const upcoming: LeaveInfo[] = [];
+
+      for (const shift of allShifts) {
+        shift.employees?.forEach((emp: EmployeeShift) => {
+          emp.days?.forEach((day: any) => {
+            if (day.isLeave && new Date(day.date) >= today) {
+              const existingLeave = upcoming.find(l => l.employeeName === emp.employeeName);
+              if (!existingLeave) {
+                const leaveEnd = emp.days.find(d => d.date > day.date && !d.isLeave);
+                upcoming.push({
+                  id: `${emp.employeeId}-${day.date}`,
+                  employeeName: emp.employeeName,
+                  leaveType: day.leaveType || 'vacation',
+                  startDate: day.date,
+                  endDate: leaveEnd?.date || day.date,
+                  daysLeft: Math.ceil((new Date(day.date).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)),
+                });
+              }
+            }
+          });
+        });
+      }
+
+      setUpcomingLeavesList(upcoming.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 5));
     } catch (error) {
       console.error('Yaklaşan izinler yükleme hatası:', error);
     }
@@ -85,7 +131,36 @@ export default function DashboardScreen() {
 
   const loadUpcomingBirthdays = useCallback(async () => {
     try {
-      setUpcomingBirthdays([]);
+      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
+      if (!allUsersStr) return;
+
+      const allUsers: User[] = JSON.parse(allUsersStr);
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const birthdays: UpcomingBirthday[] = [];
+
+      allUsers.forEach(u => {
+        if (u.birthDate && u.isApproved && !u.isTerminated) {
+          const birthDate = new Date(u.birthDate);
+          const nextBirthday = new Date(currentYear, birthDate.getMonth(), birthDate.getDate());
+          
+          if (nextBirthday < today) {
+            nextBirthday.setFullYear(currentYear + 1);
+          }
+
+          const daysUntil = Math.ceil((nextBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (daysUntil <= 30) {
+            birthdays.push({
+              employeeName: `${u.firstName} ${u.lastName}`,
+              birthDate: nextBirthday.toISOString().split('T')[0],
+              daysUntil,
+            });
+          }
+        }
+      });
+
+      setUpcomingBirthdays(birthdays.sort((a, b) => a.daysUntil - b.daysUntil).slice(0, 5));
     } catch (error) {
       console.error('Yaklaşan doğum günleri yükleme hatası:', error);
     }
@@ -236,6 +311,14 @@ export default function DashboardScreen() {
       
       setDepartmentStats(stats);
 
+      const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739'];
+      const distribution: PositionDistribution[] = stats.map((stat, index) => ({
+        position: stat.position,
+        count: stat.count,
+        color: colors[index % colors.length],
+      }));
+      setPositionDistribution(distribution);
+
       const withSalary = activeUsers.filter(u => u.salary && u.salary > 0).length;
       const withoutSalary = activeUsers.length - withSalary;
 
@@ -256,6 +339,7 @@ export default function DashboardScreen() {
           salary: u.salary,
           overtimeHours: overtime,
           offDayHours: offDay,
+          profilePhoto: u.profilePhoto,
         };
       });
 
@@ -348,6 +432,18 @@ export default function DashboardScreen() {
     ? (leaveBalance.usedDays / leaveBalance.totalDays) * 100 
     : 0;
 
+  const getLeaveTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      vacation: 'Yıllık İzin',
+      sick: 'Hastalık İzni',
+      personal: 'Özel İzin',
+    };
+    return labels[type] || type;
+  };
+
+  const screenWidth = Dimensions.get('window').width;
+  const chartSize = Math.min(screenWidth - 80, 200);
+
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
@@ -369,9 +465,30 @@ export default function DashboardScreen() {
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.welcomeCard}>
-          <Text style={styles.welcomeText}>Hoş geldin,</Text>
-          <Text style={styles.welcomeName}>{user.firstName}! 👋</Text>
+        <View style={styles.profileCard}>
+          <View style={styles.profileHeader}>
+            <View style={styles.profileAvatar}>
+              {user.profilePhoto ? (
+                <Image source={{ uri: user.profilePhoto }} style={styles.profileImage} />
+              ) : (
+                <UserIcon size={32} color={colors.white} />
+              )}
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{user.firstName} {user.lastName}</Text>
+              <Text style={styles.profilePosition}>{getPositionLabel(user.position)}</Text>
+            </View>
+          </View>
+          <View style={styles.profileDetails}>
+            <View style={styles.profileDetailRow}>
+              <Text style={styles.profileDetailLabel}>Mağaza</Text>
+              <Text style={styles.profileDetailValue}>{user.store}</Text>
+            </View>
+            <View style={styles.profileDetailRow}>
+              <Text style={styles.profileDetailLabel}>İşe Başlama</Text>
+              <Text style={styles.profileDetailValue}>{new Date(user.startDate).toLocaleDateString('tr-TR')}</Text>
+            </View>
+          </View>
         </View>
 
         <View style={styles.leaveBalanceCard}>
@@ -420,22 +537,24 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        {upcomingLeaves.length > 0 && (
+        {upcomingLeavesList.length > 0 && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Calendar size={20} color={colors.primary} />
               <Text style={styles.cardTitle}>Yaklaşan İzinler</Text>
             </View>
-            {upcomingLeaves.map((leave, index) => (
-              <View key={index} style={styles.listItem}>
+            {upcomingLeavesList.map((leave) => (
+              <View key={leave.id} style={styles.listItem}>
                 <View style={styles.listItemLeft}>
                   <Text style={styles.listItemName}>{leave.employeeName}</Text>
                   <Text style={styles.listItemDetail}>
-                    {formatDate(leave.startDate)} - {formatDate(leave.endDate)}
+                    {formatDate(leave.startDate)} - {getLeaveTypeLabel(leave.leaveType)}
                   </Text>
                 </View>
-                <View style={styles.leaveTypeBadge}>
-                  <Text style={styles.leaveTypeText}>{leave.leaveType}</Text>
+                <View style={styles.daysBadge}>
+                  <Text style={styles.daysText}>
+                    {leave.daysLeft === 0 ? 'Bugün' : `${leave.daysLeft}g`}
+                  </Text>
                 </View>
               </View>
             ))}
@@ -549,6 +668,34 @@ export default function DashboardScreen() {
           </View>
         )}
 
+        {positionDistribution.length > 0 && (
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <TrendingUp size={20} color={colors.primary} />
+              <Text style={styles.cardTitle}>Çalışan Dağılımı</Text>
+            </View>
+            <View style={styles.chartContainer}>
+              <View style={styles.pieChart}>
+                {positionDistribution.map((item, index) => {
+                  const total = positionDistribution.reduce((sum, p) => sum + p.count, 0);
+                  const percentage = (item.count / total) * 100;
+                  return (
+                    <View key={index} style={styles.chartLegendItem}>
+                      <View style={[styles.chartLegendColor, { backgroundColor: item.color }]} />
+                      <Text style={styles.chartLegendText}>{item.position}</Text>
+                      <Text style={styles.chartLegendValue}>{item.count}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+              <View style={styles.totalEmployeesCircle}>
+                <Users size={24} color={colors.gray[400]} />
+                <Text style={styles.totalEmployeesNumber}>{employeeStats?.totalEmployees || 0}</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
         {topEmployees.length > 0 && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
@@ -557,9 +704,18 @@ export default function DashboardScreen() {
             </View>
             {topEmployees.map((emp) => (
               <View key={emp.id} style={styles.employeeRow}>
-                <View style={styles.employeeInfo}>
-                  <Text style={styles.employeeName}>{emp.name}</Text>
-                  <Text style={styles.employeeDetail}>{emp.position} • {emp.store}</Text>
+                <View style={styles.employeeRowLeft}>
+                  <View style={styles.employeeAvatar}>
+                    {emp.profilePhoto ? (
+                      <Image source={{ uri: emp.profilePhoto }} style={styles.employeeAvatarImage} />
+                    ) : (
+                      <UserIcon size={20} color={colors.primary} />
+                    )}
+                  </View>
+                  <View style={styles.employeeInfo}>
+                    <Text style={styles.employeeName}>{emp.name}</Text>
+                    <Text style={styles.employeeDetail}>{emp.position} • {emp.store}</Text>
+                  </View>
                 </View>
                 <View style={styles.employeeHours}>
                   <Text style={[styles.hoursText, { color: emp.overtimeHours > 0 ? colors.warning : colors.gray[500] }]}>
@@ -658,21 +814,70 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
   },
-  welcomeCard: {
-    backgroundColor: colors.primary,
+  profileCard: {
+    backgroundColor: colors.white,
     borderRadius: 20,
-    padding: 24,
+    padding: 20,
     marginBottom: 20,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  welcomeText: {
-    fontSize: 16,
-    color: colors.white + 'CC',
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[100],
+  },
+  profileAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 20,
+    fontWeight: '800' as const,
+    color: colors.gray[900],
     marginBottom: 4,
   },
-  welcomeName: {
-    fontSize: 28,
-    fontWeight: '800' as const,
-    color: colors.white,
+  profilePosition: {
+    fontSize: 14,
+    color: colors.gray[600],
+    fontWeight: '600' as const,
+  },
+  profileDetails: {
+    gap: 12,
+  },
+  profileDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  profileDetailLabel: {
+    fontSize: 14,
+    color: colors.gray[600],
+    fontWeight: '600' as const,
+  },
+  profileDetailValue: {
+    fontSize: 14,
+    color: colors.gray[900],
+    fontWeight: '600' as const,
   },
   leaveBalanceCard: {
     backgroundColor: colors.white,
@@ -858,6 +1063,51 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600' as const,
   },
+  chartContainer: {
+    paddingVertical: 12,
+  },
+  pieChart: {
+    gap: 12,
+    marginBottom: 20,
+  },
+  chartLegendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  chartLegendColor: {
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+  },
+  chartLegendText: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.gray[700],
+    fontWeight: '600' as const,
+  },
+  chartLegendValue: {
+    fontSize: 14,
+    color: colors.gray[900],
+    fontWeight: '700' as const,
+  },
+  totalEmployeesCircle: {
+    alignSelf: 'center',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.gray[50],
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 3,
+    borderColor: colors.primary + '20',
+  },
+  totalEmployeesNumber: {
+    fontSize: 32,
+    fontWeight: '800' as const,
+    color: colors.gray[900],
+  },
   employeeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -865,6 +1115,25 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray[100],
+  },
+  employeeRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  employeeAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  employeeAvatarImage: {
+    width: '100%',
+    height: '100%',
   },
   employeeInfo: {
     flex: 1,
