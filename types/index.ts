@@ -31,6 +31,8 @@ export type User = {
   salary?: number;
   monthlyWorkDays?: number;
   dailyWorkHours?: number;
+  overtimeHours?: number;
+  offDayHours?: number;
 };
 
 export type MediaFile = {

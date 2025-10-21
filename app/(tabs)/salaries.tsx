@@ -19,6 +19,8 @@ export default function SalariesScreen() {
     salary: '',
     monthlyWorkDays: '26',
     dailyWorkHours: '8',
+    overtimeHours: '',
+    offDayHours: '',
   });
 
   const [refreshKey, setRefreshKey] = useState(0);
@@ -126,8 +128,8 @@ export default function SalariesScreen() {
     const dailyRate = salary / monthlyWorkDays;
     const hourlyRate = dailyRate / dailyWorkHours;
     
-    const overtimeHours = await calculateOvertimeHours(employee.id);
-    const offDayHours = await calculateOffDayHours(employee.id);
+    const overtimeHours = employee.overtimeHours || 0;
+    const offDayHours = employee.offDayHours || 0;
     
     console.log(`📊 Maaş hesaplama - ${employee.firstName} ${employee.lastName}:`);
     console.log(`  - Ekstra mesai saati: ${overtimeHours}`);
@@ -153,7 +155,7 @@ export default function SalariesScreen() {
       overtimeRate,
       offDayRate,
     };
-  }, [calculateOvertimeHours, calculateOffDayHours]);
+  }, []);
 
   const handleSaveSalaryInfo = async () => {
     if (!selectedEmployee) return;
@@ -161,6 +163,8 @@ export default function SalariesScreen() {
     const salary = parseFloat(salaryData.salary);
     const monthlyWorkDays = parseInt(salaryData.monthlyWorkDays);
     const dailyWorkHours = parseFloat(salaryData.dailyWorkHours);
+    const overtimeHours = parseFloat(salaryData.overtimeHours) || 0;
+    const offDayHours = parseFloat(salaryData.offDayHours) || 0;
 
     if (isNaN(salary) || salary <= 0) {
       Alert.alert('Hata', 'Geçerli bir maaş giriniz');
@@ -177,6 +181,16 @@ export default function SalariesScreen() {
       return;
     }
 
+    if (overtimeHours < 0) {
+      Alert.alert('Hata', 'Mesai saati negatif olamaz');
+      return;
+    }
+
+    if (offDayHours < 0) {
+      Alert.alert('Hata', 'Off günü saati negatif olamaz');
+      return;
+    }
+
     try {
       const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
       if (!allUsersStr) return;
@@ -188,6 +202,8 @@ export default function SalariesScreen() {
         allUsers[userIndex].salary = salary;
         allUsers[userIndex].monthlyWorkDays = monthlyWorkDays;
         allUsers[userIndex].dailyWorkHours = dailyWorkHours;
+        allUsers[userIndex].overtimeHours = overtimeHours;
+        allUsers[userIndex].offDayHours = offDayHours;
 
         await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
         await loadEmployees();
@@ -196,7 +212,7 @@ export default function SalariesScreen() {
         Alert.alert('Başarılı', 'Maaş bilgileri kaydedildi');
         setModalVisible(false);
         setSelectedEmployee(null);
-        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8', overtimeHours: '', offDayHours: '' });
       }
     } catch (error) {
       console.error('Maaş kaydetme hatası:', error);
@@ -210,6 +226,8 @@ export default function SalariesScreen() {
       salary: employee.salary?.toString() || '',
       monthlyWorkDays: employee.monthlyWorkDays?.toString() || '26',
       dailyWorkHours: employee.dailyWorkHours?.toString() || '8',
+      overtimeHours: employee.overtimeHours?.toString() || '',
+      offDayHours: employee.offDayHours?.toString() || '',
     });
     setModalVisible(true);
   };
@@ -308,7 +326,7 @@ export default function SalariesScreen() {
         onRequestClose={() => {
           setModalVisible(false);
           setSelectedEmployee(null);
-          setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+          setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8', overtimeHours: '', offDayHours: '' });
         }}
       >
         <KeyboardAvoidingView 
@@ -321,7 +339,7 @@ export default function SalariesScreen() {
             onPress={() => {
               setModalVisible(false);
               setSelectedEmployee(null);
-              setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+              setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8', overtimeHours: '', offDayHours: '' });
             }}
           >
             <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
@@ -337,7 +355,7 @@ export default function SalariesScreen() {
                       onPress={() => {
                         setModalVisible(false);
                         setSelectedEmployee(null);
-                        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+                        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8', overtimeHours: '', offDayHours: '' });
                       }}
                     >
                       <X size={24} color={colors.gray[500]} />
@@ -379,7 +397,31 @@ export default function SalariesScreen() {
                       placeholder="8"
                       value={salaryData.dailyWorkHours}
                       onChangeText={(text) => setSalaryData({ ...salaryData, dailyWorkHours: text })}
-                      keyboardType="numeric"
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.gray[400]}
+                    />
+                  </View>
+
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Bu Ay Mesai Saati (Ekstra Çalışma)</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="0"
+                      value={salaryData.overtimeHours}
+                      onChangeText={(text) => setSalaryData({ ...salaryData, overtimeHours: text })}
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.gray[400]}
+                    />
+                  </View>
+
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Bu Ay Off Günü Saati (Pazar Çalışması)</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="0"
+                      value={salaryData.offDayHours}
+                      onChangeText={(text) => setSalaryData({ ...salaryData, offDayHours: text })}
+                      keyboardType="decimal-pad"
                       placeholderTextColor={colors.gray[400]}
                     />
                   </View>
@@ -390,7 +432,7 @@ export default function SalariesScreen() {
                       onPress={() => {
                         setModalVisible(false);
                         setSelectedEmployee(null);
-                        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8' });
+                        setSalaryData({ salary: '', monthlyWorkDays: '26', dailyWorkHours: '8', overtimeHours: '', offDayHours: '' });
                       }}
                     >
                       <Text style={styles.cancelButtonText}>İptal</Text>
@@ -438,7 +480,7 @@ function EmployeeSalaryCard({
       setLoading(false);
     };
     loadSalaryInfo();
-  }, [calculateSalary, employee.id, employee.salary, employee.monthlyWorkDays, employee.dailyWorkHours, refreshTrigger]);
+  }, [calculateSalary, employee, refreshTrigger]);
 
   if (loading) {
     return (
