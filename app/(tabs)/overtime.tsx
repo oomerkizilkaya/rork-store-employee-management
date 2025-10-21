@@ -320,8 +320,8 @@ export default function OvertimeScreen() {
                     style={styles.input}
                     value={newRequestHours}
                     onChangeText={setNewRequestHours}
-                    placeholder="4"
-                    keyboardType="numeric"
+                    placeholder="9.5"
+                    keyboardType="decimal-pad"
                     placeholderTextColor={colors.gray[400]}
                   />
                 </View>
