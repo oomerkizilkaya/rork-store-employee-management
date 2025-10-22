@@ -59,20 +59,25 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
+      
+      <Image
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/vlj615hbzdtcmteddz8yd' }}
+        style={styles.backgroundLogo}
+        resizeMode="contain"
+      />
+      
+      <Image
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/YOUR_DONER_CUP_IMAGE_ID' }}
+        style={styles.donerCup}
+        resizeMode="contain"
+      />
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/vlj615hbzdtcmteddz8yd' }}
-                style={styles.logo}
-                resizeMode="contain"
-                onError={(e) => console.log('Logo error:', e.nativeEvent.error)}
-              />
-            </View>
             <Text style={styles.title}>Hoş Geldiniz</Text>
             <Text style={styles.subtitle}>Devam etmek için giriş yapın</Text>
           </View>
@@ -153,24 +158,26 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 40,
+    marginTop: 100,
   },
-  logoContainer: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+  backgroundLogo: {
+    position: 'absolute' as const,
+    width: 300,
+    height: 300,
+    top: '35%',
+    left: '50%',
+    marginLeft: -150,
+    marginTop: -150,
+    opacity: 0.15,
+    zIndex: 0,
   },
-  logo: {
-    width: 180,
-    height: 180,
+  donerCup: {
+    position: 'absolute' as const,
+    width: 120,
+    height: 120,
+    top: 20,
+    left: 20,
+    zIndex: 1,
   },
   title: {
     fontSize: 32,
