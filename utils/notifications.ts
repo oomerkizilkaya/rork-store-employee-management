@@ -332,11 +332,11 @@ export async function scheduleWeeklyShiftReminders() {
       priority: Notifications.AndroidNotificationPriority.HIGH,
     },
     trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+      type: 'calendar' as const,
       weekday: 6,
       hour: 18,
       minute: 0,
       repeats: true,
-    },
+    } as Notifications.CalendarTriggerInput,
   });
 }
