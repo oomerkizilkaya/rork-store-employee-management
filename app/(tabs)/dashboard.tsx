@@ -7,6 +7,7 @@ import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase,
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, LeaveBalance, Holiday, CompanyEvent, OvertimeRequest, EmployeeShift } from '@/types';
+import { getPositionLabel } from '@/utils/positions';
 
 type UpcomingLeave = {
   employeeName: string;
@@ -306,7 +307,7 @@ export default function DashboardScreen() {
       });
       
       const stats = Object.entries(positionCounts).map(([position, count]) => ({
-        position: getPositionLabel(position),
+        position: getPositionLabel(position as any),
         count,
       }));
       
@@ -373,21 +374,6 @@ export default function DashboardScreen() {
   useEffect(() => {
     loadDashboardData();
   }, [loadDashboardData]);
-
-  const getPositionLabel = (position: string): string => {
-    const labels: Record<string, string> = {
-      servis_personeli: 'Servis',
-      barista: 'Barista',
-      supervisor: 'Süpervizör',
-      mudur_yardimcisi: 'Müdür Yrd.',
-      magaza_muduru: 'Mağaza Müdürü',
-      bolge_muduru: 'Bölge Müdürü',
-      egitmen: 'Eğitmen',
-      egitim_muduru: 'Eğitim Müdürü',
-      insan_kaynaklari: 'İK',
-    };
-    return labels[position] || position;
-  };
 
   const getDaysUntil = (dateStr: string): number => {
     const today = new Date();
