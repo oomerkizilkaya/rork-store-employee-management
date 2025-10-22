@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-nat
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase, User as UserIcon, Cake, Award, TrendingUp } from 'lucide-react-native';
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -411,7 +412,7 @@ export default function DashboardScreen() {
           <View style={[styles.headerBackground, { height: insets.top }]} />
           <View style={styles.topBar}>
             <Image 
-              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
+              source={{ uri: IMAGES.logo }} 
               style={styles.headerLogo}
               resizeMode="contain"
             />
@@ -450,7 +451,7 @@ export default function DashboardScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.topBar}>
           <Image 
-            source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
+            source={{ uri: IMAGES.logo }} 
             style={styles.headerLogo}
             resizeMode="contain"
           />
@@ -459,7 +460,7 @@ export default function DashboardScreen() {
       </View>
       
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/52mk5c717uw2fbnlwljam' }} 
+        source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />

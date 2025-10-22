@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Image, Tex
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { Calendar, Plus, ChevronLeft, ChevronRight, User, X, Clock, Check } from 'lucide-react-native';
 import { Shift, EmployeeShift, DaySchedule, Region } from '@/types';
 import { sendShiftCreatedNotification, sendUntrainedEmployeeNotification } from '@/utils/notifications';
@@ -223,7 +224,7 @@ export default function ShiftsScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/52mk5c717uw2fbnlwljam' }} 
+        source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
@@ -231,7 +232,7 @@ export default function ShiftsScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
         <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
+          source={{ uri: IMAGES.logo }} 
           style={styles.headerLogo}
           resizeMode="contain"
         />
