@@ -80,7 +80,7 @@ export default function AnnouncementsScreen() {
 
   useEffect(() => {
     loadAnnouncements();
-  }, [mockAnnouncements]);
+  }, []);
 
   const loadAnnouncements = async () => {
     try {
