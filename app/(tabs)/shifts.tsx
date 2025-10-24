@@ -243,13 +243,17 @@ export default function ShiftsScreen() {
               resizeMode="contain"
             />
           </View>
-        {canManageShifts && (
+          <View style={styles.rightSpacer} />
+        </View>
+      </View>
+
+      {canManageShifts && (
+        <View style={styles.createButtonContainer}>
           <TouchableOpacity style={styles.addButton} onPress={handleOpenModal}>
             <Plus size={20} color={colors.white} />
           </TouchableOpacity>
-        )}
         </View>
-      </View>
+      )}
 
       <View style={styles.weekNavigator}>
         <TouchableOpacity style={styles.navButton} onPress={handlePreviousWeek}>
@@ -602,6 +606,15 @@ const styles = StyleSheet.create({
   centerLogo: {
     width: 80,
     height: 40,
+  },
+  rightSpacer: {
+    width: 32,
+  },
+  createButtonContainer: {
+    position: 'absolute' as const,
+    bottom: 100,
+    right: 20,
+    zIndex: 10,
   },
   addButton: {
     backgroundColor: colors.primary,

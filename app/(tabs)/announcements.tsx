@@ -259,7 +259,12 @@ export default function AnnouncementsScreen() {
               resizeMode="contain"
             />
           </View>
-        {canManage && (
+          <View style={styles.rightSpacer} />
+        </View>
+      </View>
+
+      {canManage && (
+        <View style={styles.createButtonContainer}>
           <TouchableOpacity 
             style={styles.createButton}
             onPress={() => setShowCreateModal(true)}
@@ -267,9 +272,8 @@ export default function AnnouncementsScreen() {
             <Plus size={20} color={colors.white} />
             <Text style={styles.createButtonText}>Yeni</Text>
           </TouchableOpacity>
-        )}
         </View>
-      </View>
+      )}
 
       <View style={styles.searchContainer}>
         <Search size={20} color={colors.gray[400]} />
@@ -504,6 +508,15 @@ const styles = StyleSheet.create({
   centerLogo: {
     width: 80,
     height: 40,
+  },
+  rightSpacer: {
+    width: 32,
+  },
+  createButtonContainer: {
+    position: 'absolute' as const,
+    bottom: 100,
+    right: 20,
+    zIndex: 10,
   },
   createButton: {
     flexDirection: 'row',

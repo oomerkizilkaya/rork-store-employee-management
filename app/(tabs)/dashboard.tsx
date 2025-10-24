@@ -413,6 +413,12 @@ export default function DashboardScreen() {
           </View>
         </View>
         
+        <Image 
+          source={{ uri: IMAGES.backgroundLogo }} 
+          style={styles.backgroundLogo}
+          resizeMode="contain"
+        />
+        
         <View style={styles.noAccessContainer}>
           <Lock size={48} color={colors.gray[400]} />
           <Text style={styles.noAccessTitle}>Erişim Yetkiniz Yok</Text>
