@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Modal, Tex
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { Plus, Clock, CheckCircle, XCircle, X, Calendar as CalendarIcon, Store as StoreIcon, User as UserIcon } from 'lucide-react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -171,24 +172,33 @@ export default function OvertimeScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
         <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
+          source={{ uri: IMAGES.cup }} 
           style={styles.headerLogo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Ekstra Mesai</Text>
-        {canCreate && (
+        <View style={styles.centerLogoContainer}>
+          <Image 
+            source={{ uri: IMAGES.logo }} 
+            style={styles.centerLogo}
+            resizeMode="contain"
+          />
+        </View>
+        {canCreate ? (
           <TouchableOpacity 
             style={styles.createButton}
             onPress={() => setModalVisible(true)}
           >
             <Plus size={20} color={colors.white} />
           </TouchableOpacity>
+        ) : (
+          <View style={styles.rightSpacer} />
         )}
         </View>
+        <Text style={styles.pageTitle}>Ekstra Mesai</Text>
       </View>
 
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/52mk5c717uw2fbnlwljam' }} 
+        source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
@@ -396,15 +406,27 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerLogo: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
   },
-  title: {
+  centerLogoContainer: {
     flex: 1,
-    fontSize: 32,
-    fontWeight: '800' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLogo: {
+    width: 80,
+    height: 40,
+  },
+  rightSpacer: {
+    width: 44,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
     color: colors.gray[900],
-    letterSpacing: -0.5,
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   createButton: {
     backgroundColor: colors.primary,

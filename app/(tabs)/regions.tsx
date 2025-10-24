@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPin, Plus, Store, X, ChevronRight, User, Users } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { Region, User as UserType } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -88,8 +89,21 @@ export default function RegionsScreen() {
         <View style={styles.headerWrapper}>
           <View style={[styles.headerBackground, { height: insets.top }]} />
           <View style={styles.header}>
-          <Text style={styles.title}>Bölge Yönetimi</Text>
+          <Image 
+            source={{ uri: IMAGES.cup }} 
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+          <View style={styles.centerLogoContainer}>
+            <Image 
+              source={{ uri: IMAGES.logo }} 
+              style={styles.centerLogo}
+              resizeMode="contain"
+            />
           </View>
+          <View style={styles.rightSpacer} />
+          </View>
+          <Text style={styles.pageTitle}>Bölge Yönetimi</Text>
         </View>
         <View style={styles.emptyState}>
           <MapPin size={64} color={colors.gray[300]} />
@@ -149,21 +163,30 @@ export default function RegionsScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
         <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
+          source={{ uri: IMAGES.cup }} 
           style={styles.headerLogo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Bölge Yönetimi</Text>
-        {hasFullAccess && (
+        <View style={styles.centerLogoContainer}>
+          <Image 
+            source={{ uri: IMAGES.logo }} 
+            style={styles.centerLogo}
+            resizeMode="contain"
+          />
+        </View>
+        {hasFullAccess ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setShowModal(true)}>
           <Plus size={20} color={colors.white} />
         </TouchableOpacity>
+        ) : (
+          <View style={styles.rightSpacer} />
         )}
         </View>
+        <Text style={styles.pageTitle}>Bölge Yönetimi</Text>
       </View>
 
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/52mk5c717uw2fbnlwljam' }} 
+        source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
@@ -428,15 +451,27 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerLogo: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
   },
-  title: {
+  centerLogoContainer: {
     flex: 1,
-    fontSize: 32,
-    fontWeight: '800' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLogo: {
+    width: 80,
+    height: 40,
+  },
+  rightSpacer: {
+    width: 44,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
     color: colors.gray[900],
-    letterSpacing: -0.5,
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   addButton: {
     backgroundColor: colors.primary,
