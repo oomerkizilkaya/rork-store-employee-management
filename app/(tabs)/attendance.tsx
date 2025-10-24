@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert, Image } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert, Image, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Clock, Check, X, AlertCircle, Store as StoreIcon } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { sendCheckInNotification, sendCheckOutNotification } from '@/utils/notifications';
 import { AttendanceRecord } from '@/types';
 import { canViewRegionalData, canCreateAttendance } from '@/utils/permissions';
@@ -11,10 +12,21 @@ import { canViewRegionalData, canCreateAttendance } from '@/utils/permissions';
 export default function AttendanceScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'checkIn' | 'checkOut'>('checkIn');
 
   const [reason, setReason] = useState('');
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
 
   const canViewRegional = user ? canViewRegionalData(user.position) : false;
   const canCreate = user ? canCreateAttendance(user.position) : true;
@@ -132,22 +144,35 @@ export default function AttendanceScreen() {
     setShowModal(true);
   };
 
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
-        <View style={styles.header}>
-        <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
-          style={styles.headerLogo}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>Giriş/Çıkış Takip</Text>
+        <View style={styles.topBar}>
+          <Animated.Image 
+            source={{ uri: IMAGES.cup }} 
+            style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
+            resizeMode="contain"
+          />
+          <View style={styles.centerLogoContainer}>
+            <Image 
+              source={{ uri: IMAGES.logo }} 
+              style={styles.centerLogo}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.rightSpacer} />
         </View>
+        <Text style={styles.pageTitle}>Giriş/Çıkış</Text>
       </View>
 
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/52mk5c717uw2fbnlwljam' }} 
+        source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
@@ -349,6 +374,36 @@ const styles = StyleSheet.create({
   headerBackground: {
     backgroundColor: colors.white,
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    gap: 12,
+  },
+  cupLogo: {
+    width: 32,
+    height: 32,
+  },
+  centerLogoContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLogo: {
+    width: 80,
+    height: 40,
+  },
+  rightSpacer: {
+    width: 32,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    textAlign: 'center',
+    paddingBottom: 12,
+  },
   backgroundLogo: {
     position: 'absolute' as const,
     width: 300,
@@ -358,25 +413,6 @@ const styles = StyleSheet.create({
     opacity: 0.08,
     zIndex: 0,
     pointerEvents: 'none' as const,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 12,
-  },
-  headerLogo: {
-    width: 36,
-    height: 36,
-  },
-  title: {
-    flex: 1,
-    fontSize: 32,
-    fontWeight: '800' as const,
-    color: colors.gray[900],
-    letterSpacing: -0.5,
   },
   scrollView: {
     flex: 1,

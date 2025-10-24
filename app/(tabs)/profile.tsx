@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, Image, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -19,7 +19,7 @@ import {
   Save
 } from 'lucide-react-native';
 import { UserPosition } from '@/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { positionOptions } from '@/utils/positions';
 
 const getPositionLabel = (position: UserPosition): string => {
@@ -41,12 +41,23 @@ export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
 
   useEffect(() => {
     setEditedUser(user);
   }, [user]);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
 
   if (!user) return null;
 
@@ -97,14 +108,19 @@ export default function ProfileScreen() {
     setIsEditing(false);
   };
 
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.topBar}>
-          <Image 
+          <Animated.Image 
             source={{ uri: IMAGES.cup }} 
-            style={styles.cupLogo}
+            style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
             resizeMode="contain"
           />
           <View style={styles.centerLogoContainer}>
@@ -116,6 +132,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.rightSpacer} />
         </View>
+        <Text style={styles.pageTitle}>Profil</Text>
       </View>
       <Image 
         source={{ uri: IMAGES.backgroundLogo }} 
@@ -366,6 +383,13 @@ const styles = StyleSheet.create({
   },
   rightSpacer: {
     width: 32,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   scrollView: {
     flex: 1,

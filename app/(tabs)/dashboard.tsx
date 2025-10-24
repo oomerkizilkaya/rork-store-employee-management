@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Dimensions, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 import { IMAGES } from '@/constants/images';
 import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase, User as UserIcon, Cake, Award, TrendingUp, Coffee } from 'lucide-react-native';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, LeaveBalance, Holiday, CompanyEvent, OvertimeRequest, EmployeeShift } from '@/types';
 import { getPositionLabel } from '@/utils/positions';
@@ -59,6 +59,7 @@ type PositionDistribution = {
 export default function DashboardScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
   const [leaveBalance, setLeaveBalance] = useState<LeaveBalance | null>(null);
   const [upcomingLeaves, setUpcomingLeaves] = useState<UpcomingLeave[]>([]);
   const [upcomingBirthdays, setUpcomingBirthdays] = useState<UpcomingBirthday[]>([]);
@@ -375,6 +376,16 @@ export default function DashboardScreen() {
     loadDashboardData();
   }, [loadDashboardData]);
 
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
+
   const getDaysUntil = (dateStr: string): number => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -389,6 +400,11 @@ export default function DashboardScreen() {
     return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
   };
 
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   if (!user) return null;
 
   if (user.position !== 'insan_kaynaklari') {
@@ -397,9 +413,9 @@ export default function DashboardScreen() {
         <View style={styles.headerWrapper}>
           <View style={[styles.headerBackground, { height: insets.top }]} />
           <View style={styles.topBar}>
-            <Image 
+            <Animated.Image 
               source={{ uri: IMAGES.cup }} 
-              style={styles.cupLogo}
+              style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
               resizeMode="contain"
             />
             <View style={styles.centerLogoContainer}>
@@ -411,6 +427,7 @@ export default function DashboardScreen() {
             </View>
             <View style={styles.rightSpacer} />
           </View>
+          <Text style={styles.pageTitle}>Dashboard</Text>
         </View>
         
         <Image 
@@ -449,9 +466,9 @@ export default function DashboardScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.topBar}>
-          <Image 
+          <Animated.Image 
             source={{ uri: IMAGES.cup }} 
-            style={styles.cupLogo}
+            style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
             resizeMode="contain"
           />
           <View style={styles.centerLogoContainer}>
@@ -463,6 +480,7 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.rightSpacer} />
         </View>
+        <Text style={styles.pageTitle}>Dashboard</Text>
       </View>
       
       <Image 
@@ -814,6 +832,13 @@ const styles = StyleSheet.create({
   },
   rightSpacer: {
     width: 32,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   scrollView: {
     flex: 1,

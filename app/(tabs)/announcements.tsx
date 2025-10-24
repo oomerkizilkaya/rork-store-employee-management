@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image, Modal, Pressable, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image, Modal, Pressable, Dimensions, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { VideoView, useVideoPlayer } from 'expo-video';
@@ -32,6 +32,7 @@ function VideoPlayerComponent({ uri }: { uri: string }) {
 export default function AnnouncementsScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMedia, setSelectedMedia] = useState<{ uri: string; type: 'image' | 'video' } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -81,6 +82,16 @@ export default function AnnouncementsScreen() {
   useEffect(() => {
     loadAnnouncements();
   }, []);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
 
   const loadAnnouncements = async () => {
     try {
@@ -237,6 +248,11 @@ export default function AnnouncementsScreen() {
     );
   };
 
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
     <View style={styles.container}>
       <Image 
@@ -247,9 +263,9 @@ export default function AnnouncementsScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-          <Image 
+          <Animated.Image 
             source={{ uri: IMAGES.cup }} 
-            style={styles.cupLogo}
+            style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
             resizeMode="contain"
           />
           <View style={styles.centerLogoContainer}>
@@ -261,6 +277,7 @@ export default function AnnouncementsScreen() {
           </View>
           <View style={styles.rightSpacer} />
         </View>
+        <Text style={styles.pageTitle}>Duyurular</Text>
       </View>
 
       {canManage && (
@@ -511,6 +528,13 @@ const styles = StyleSheet.create({
   },
   rightSpacer: {
     width: 32,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   createButtonContainer: {
     position: 'absolute' as const,
