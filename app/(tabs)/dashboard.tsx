@@ -398,11 +398,18 @@ export default function DashboardScreen() {
           <View style={[styles.headerBackground, { height: insets.top }]} />
           <View style={styles.topBar}>
             <Image 
-              source={{ uri: IMAGES.logo }} 
-              style={styles.headerLogo}
+              source={{ uri: IMAGES.cup }} 
+              style={styles.cupLogo}
               resizeMode="contain"
             />
-            <Text style={styles.topBarTitle}>Dashboard</Text>
+            <View style={styles.centerLogoContainer}>
+              <Image 
+                source={{ uri: IMAGES.logo }} 
+                style={styles.centerLogo}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.rightSpacer} />
           </View>
         </View>
         
@@ -437,11 +444,18 @@ export default function DashboardScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.topBar}>
           <Image 
-            source={{ uri: IMAGES.logo }} 
-            style={styles.headerLogo}
+            source={{ uri: IMAGES.cup }} 
+            style={styles.cupLogo}
             resizeMode="contain"
           />
-          <Text style={styles.topBarTitle}>Dashboard</Text>
+          <View style={styles.centerLogoContainer}>
+            <Image 
+              source={{ uri: IMAGES.logo }} 
+              style={styles.centerLogo}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.rightSpacer} />
         </View>
       </View>
       
@@ -779,16 +793,21 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 12,
   },
-  headerLogo: {
-    width: 36,
-    height: 36,
+  cupLogo: {
+    width: 32,
+    height: 32,
   },
-  topBarTitle: {
+  centerLogoContainer: {
     flex: 1,
-    fontSize: 32,
-    fontWeight: '800' as const,
-    color: colors.gray[900],
-    letterSpacing: -0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLogo: {
+    width: 80,
+    height: 40,
+  },
+  rightSpacer: {
+    width: 32,
   },
   scrollView: {
     flex: 1,

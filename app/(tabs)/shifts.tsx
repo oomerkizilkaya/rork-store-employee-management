@@ -232,11 +232,17 @@ export default function ShiftsScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
           <Image 
-            source={{ uri: IMAGES.logo }} 
-            style={styles.headerLogo}
+            source={{ uri: IMAGES.cup }} 
+            style={styles.cupLogo}
             resizeMode="contain"
           />
-        <Text style={styles.title}>Vardiya Yönetimi</Text>
+          <View style={styles.centerLogoContainer}>
+            <Image 
+              source={{ uri: IMAGES.logo }} 
+              style={styles.centerLogo}
+              resizeMode="contain"
+            />
+          </View>
         {canManageShifts && (
           <TouchableOpacity style={styles.addButton} onPress={handleOpenModal}>
             <Plus size={20} color={colors.white} />
@@ -584,16 +590,18 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 12,
   },
-  headerLogo: {
-    width: 36,
-    height: 36,
+  cupLogo: {
+    width: 32,
+    height: 32,
   },
-  title: {
+  centerLogoContainer: {
     flex: 1,
-    fontSize: 32,
-    fontWeight: '800' as const,
-    color: colors.gray[900],
-    letterSpacing: -0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLogo: {
+    width: 80,
+    height: 40,
   },
   addButton: {
     backgroundColor: colors.primary,
