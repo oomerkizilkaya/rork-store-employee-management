@@ -1,4 +1,4 @@
 export const IMAGES = {
-  logo: 'https://i.ibb.co/934zrbtn/M-KEL-LOGOSU.png',
-  backgroundLogo: 'https://i.ibb.co/MDm3SMfF/M-KEL-ARKAPLAN-LOGO.png',
+  logo: 'https://i.ibb.co/kQJ1hL8/M-KEL-LOGOSU.png',
+  backgroundLogo: 'https://i.ibb.co/WPn6Drm/M-KEL-ARKAPLAN-LOGO.png',
 };
