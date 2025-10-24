@@ -61,13 +61,13 @@ export default function LoginScreen() {
       <StatusBar style="light" />
       
       <Image
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/vlj615hbzdtcmteddz8yd' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/q6v0u5468y91diil6rtcv' }}
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
       
       <Image
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/vlj615hbzdtcmteddz8yd' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/sxskl6u04wjifz0lsmd2o' }}
         style={styles.donerCup}
         resizeMode="contain"
       />
