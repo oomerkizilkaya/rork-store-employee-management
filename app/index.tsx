@@ -1,29 +1,19 @@
-import { useEffect, useRef } from 'react';
+
 import { View, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 
 export default function IndexScreen() {
   const { user, loading } = useAuth();
-  const router = useRouter();
-  const hasNavigated = useRef(false);
 
-  useEffect(() => {
-    if (!loading && !hasNavigated.current) {
-      hasNavigated.current = true;
-      
-      const timer = setTimeout(() => {
-        if (user) {
-          router.replace('/(tabs)/announcements');
-        } else {
-          router.replace('/auth/login');
-        }
-      }, 100);
-
-      return () => clearTimeout(timer);
+  if (!loading) {
+    if (user) {
+      return <Redirect href="/(tabs)/announcements" />;
+    } else {
+      return <Redirect href="/auth/login" />;
     }
-  }, [user, loading]);
+  }
 
   return (
     <View style={{ 
