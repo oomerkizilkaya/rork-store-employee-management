@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { DollarSign, Search, User as UserIcon, X, Calculator, Clock, Calendar as CalendarIcon } from 'lucide-react-native';
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -254,11 +255,18 @@ export default function SalariesScreen() {
           <View style={[styles.headerBackground, { height: insets.top }]} />
           <View style={styles.header}>
             <Image 
-              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
-              style={styles.headerLogo}
+              source={{ uri: IMAGES.cup }} 
+              style={styles.cupLogo}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Maaş Yönetimi</Text>
+            <View style={styles.centerLogoContainer}>
+              <Image 
+                source={{ uri: IMAGES.logo }} 
+                style={styles.centerLogo}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.rightSpacer} />
           </View>
         </View>
         
@@ -277,11 +285,18 @@ export default function SalariesScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
           <Image 
-            source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
-            style={styles.headerLogo}
+            source={{ uri: IMAGES.cup }} 
+            style={styles.cupLogo}
             resizeMode="contain"
           />
-          <Text style={styles.title}>Maaş Yönetimi</Text>
+          <View style={styles.centerLogoContainer}>
+            <Image 
+              source={{ uri: IMAGES.logo }} 
+              style={styles.centerLogo}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.rightSpacer} />
         </View>
       </View>
 
@@ -301,7 +316,7 @@ export default function SalariesScreen() {
       </View>
 
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/52mk5c717uw2fbnlwljam' }} 
+        source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
@@ -309,7 +324,7 @@ export default function SalariesScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {filteredEmployees.map((employee) => (
           <EmployeeSalaryCard 
-            key={`salary-card-${employee.id}`} 
+            key={`salary-emp-${employee.id}`} 
             employee={employee} 
             onEdit={openEditModal}
             calculateSalary={calculateSalary}
@@ -643,16 +658,21 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 12,
   },
-  headerLogo: {
-    width: 36,
-    height: 36,
+  cupLogo: {
+    width: 32,
+    height: 32,
   },
-  title: {
+  centerLogoContainer: {
     flex: 1,
-    fontSize: 32,
-    fontWeight: '800' as const,
-    color: colors.gray[900],
-    letterSpacing: -0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLogo: {
+    width: 80,
+    height: 40,
+  },
+  rightSpacer: {
+    width: 32,
   },
   searchContainer: {
     flexDirection: 'row',

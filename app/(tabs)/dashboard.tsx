@@ -575,7 +575,7 @@ export default function DashboardScreen() {
               <Text style={styles.cardTitle}>Yaklaşan Doğum Günleri</Text>
             </View>
             {upcomingBirthdays.map((birthday, index) => (
-              <View key={`birthday-${index}-${birthday.employeeName}`} style={styles.listItem}>
+              <View key={`dashboard-birthday-${birthday.employeeName}-${index}`} style={styles.listItem}>
                 <View style={styles.listItemLeft}>
                   <Text style={styles.listItemName}>{birthday.employeeName}</Text>
                   <Text style={styles.listItemDetail}>
@@ -684,7 +684,7 @@ export default function DashboardScreen() {
             <View style={styles.chartContainer}>
               <View style={styles.pieChart}>
                 {positionDistribution.map((item, index) => (
-                    <View key={`position-dist-${index}-${item.position}`} style={styles.chartLegendItem}>
+                    <View key={`dashboard-pos-${item.position}-${index}`} style={styles.chartLegendItem}>
                       <View style={[styles.chartLegendColor, { backgroundColor: item.color }]} />
                       <Text style={styles.chartLegendText}>{item.position}</Text>
                       <Text style={styles.chartLegendValue}>{item.count}</Text>
@@ -745,7 +745,7 @@ export default function DashboardScreen() {
                 const percentage = (stat.count / totalEmployees) * 100;
                 
                 return (
-                  <View key={`dept-stat-${index}-${stat.position}`} style={styles.statRow}>
+                  <View key={`dashboard-dept-${stat.position}-${index}`} style={styles.statRow}>
                     <View style={styles.statLeft}>
                       <Text style={styles.statLabel}>{stat.position}</Text>
                       <Text style={styles.statValue}>{stat.count} kişi</Text>

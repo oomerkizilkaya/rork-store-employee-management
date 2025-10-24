@@ -7,6 +7,7 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { Search, Download, User as UserIcon, Phone, Mail, MapPin, UserX, X } from 'lucide-react-native';
 import { User, UserPosition } from '@/types';
 import { canSeeAllStores, canSeePhoneNumbers, canApproveEmployees } from '@/utils/permissions';
@@ -334,11 +335,18 @@ export default function EmployeesScreen() {
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
         <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/yk40w2bqfr6oa4yc8w2q3' }} 
-          style={styles.headerLogo}
+          source={{ uri: IMAGES.cup }} 
+          style={styles.cupLogo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Çalışanlar</Text>
+        <View style={styles.centerLogoContainer}>
+          <Image 
+            source={{ uri: IMAGES.logo }} 
+            style={styles.centerLogo}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.rightSpacer} />
         <TouchableOpacity 
           style={styles.downloadButton}
           onPress={handleExportToExcel}
@@ -390,7 +398,7 @@ export default function EmployeesScreen() {
       </View>
 
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/52mk5c717uw2fbnlwljam' }} 
+        source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
@@ -398,7 +406,7 @@ export default function EmployeesScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {activeTab === 'pending' ? (
           pendingUsers.map((employee) => (
-            <View key={`pending-user-${employee.id}`} style={styles.card}>
+            <View key={`employee-pending-${employee.id}`} style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.avatar}>
                   <UserIcon size={24} color={colors.warning} />
@@ -459,7 +467,7 @@ export default function EmployeesScreen() {
           ))
         ) : (
           filteredEmployees.map((employee) => (
-          <View key={`active-employee-${employee.id}`} style={styles.card}>
+          <View key={`employee-active-${employee.id}`} style={styles.card}>
             <View style={styles.cardHeader}>
               <View style={styles.avatar}>
                 <UserIcon size={24} color={colors.primary} />
@@ -621,16 +629,21 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 12,
   },
-  headerLogo: {
-    width: 36,
-    height: 36,
+  cupLogo: {
+    width: 32,
+    height: 32,
   },
-  title: {
+  centerLogoContainer: {
     flex: 1,
-    fontSize: 32,
-    fontWeight: '800' as const,
-    color: colors.gray[900],
-    letterSpacing: -0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLogo: {
+    width: 80,
+    height: 40,
+  },
+  rightSpacer: {
+    width: 32,
   },
   downloadButton: {
     backgroundColor: colors.success,
