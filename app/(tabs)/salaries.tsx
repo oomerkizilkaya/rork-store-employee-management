@@ -268,6 +268,7 @@ export default function SalariesScreen() {
             </View>
             <View style={styles.rightSpacer} />
           </View>
+          <Text style={styles.pageTitle}>Maaşlar</Text>
         </View>
         
         <View style={styles.noAccessContainer}>
@@ -298,6 +299,7 @@ export default function SalariesScreen() {
           </View>
           <View style={styles.rightSpacer} />
         </View>
+        <Text style={styles.pageTitle}>Maaşlar</Text>
       </View>
 
       <View style={styles.searchContainer}>
@@ -673,6 +675,13 @@ const styles = StyleSheet.create({
   },
   rightSpacer: {
     width: 32,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   searchContainer: {
     flexDirection: 'row',

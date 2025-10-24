@@ -245,6 +245,7 @@ export default function ShiftsScreen() {
           </View>
           <View style={styles.rightSpacer} />
         </View>
+        <Text style={styles.pageTitle}>Vardiya Planlaması</Text>
       </View>
 
       {canManageShifts && (
@@ -609,6 +610,13 @@ const styles = StyleSheet.create({
   },
   rightSpacer: {
     width: 32,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   createButtonContainer: {
     position: 'absolute' as const,

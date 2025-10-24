@@ -346,7 +346,6 @@ export default function EmployeesScreen() {
             resizeMode="contain"
           />
         </View>
-        <View style={styles.rightSpacer} />
         <TouchableOpacity 
           style={styles.downloadButton}
           onPress={handleExportToExcel}
@@ -354,6 +353,7 @@ export default function EmployeesScreen() {
           <Download size={20} color={colors.white} />
         </TouchableOpacity>
         </View>
+        <Text style={styles.pageTitle}>Çalışanlar</Text>
       </View>
 
       <View style={styles.searchContainer}>
@@ -644,6 +644,13 @@ const styles = StyleSheet.create({
   },
   rightSpacer: {
     width: 32,
+  },
+  pageTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: colors.gray[900],
+    textAlign: 'center',
+    paddingBottom: 12,
   },
   downloadButton: {
     backgroundColor: colors.success,
