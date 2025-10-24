@@ -575,7 +575,7 @@ export default function DashboardScreen() {
               <Text style={styles.cardTitle}>Yaklaşan Doğum Günleri</Text>
             </View>
             {upcomingBirthdays.map((birthday, index) => (
-              <View key={`dashboard-birthday-${index}-${birthday.employeeName}-${birthday.birthDate}`} style={styles.listItem}>
+              <View key={`dashboard-birthday-${birthday.employeeName}-${birthday.birthDate}-${index}`} style={styles.listItem}>
                 <View style={styles.listItemLeft}>
                   <Text style={styles.listItemName}>{birthday.employeeName}</Text>
                   <Text style={styles.listItemDetail}>
