@@ -684,7 +684,7 @@ export default function DashboardScreen() {
             <View style={styles.chartContainer}>
               <View style={styles.pieChart}>
                 {positionDistribution.map((item, index) => (
-                    <View key={`dashboard-pos-${item.position}-${index}`} style={styles.chartLegendItem}>
+                    <View key={`chart-legend-${index}-${item.position}`} style={styles.chartLegendItem}>
                       <View style={[styles.chartLegendColor, { backgroundColor: item.color }]} />
                       <Text style={styles.chartLegendText}>{item.position}</Text>
                       <Text style={styles.chartLegendValue}>{item.count}</Text>
@@ -745,7 +745,7 @@ export default function DashboardScreen() {
                 const percentage = (stat.count / totalEmployees) * 100;
                 
                 return (
-                  <View key={`dashboard-dept-${stat.position}-${index}`} style={styles.statRow}>
+                  <View key={`dept-stat-${index}-${stat.position}`} style={styles.statRow}>
                     <View style={styles.statLeft}>
                       <Text style={styles.statLabel}>{stat.position}</Text>
                       <Text style={styles.statValue}>{stat.count} kişi</Text>
