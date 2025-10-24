@@ -322,9 +322,9 @@ export default function SalariesScreen() {
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {filteredEmployees.map((employee, index) => (
+        {filteredEmployees.map((employee) => (
           <EmployeeSalaryCard 
-            key={`salary-${index}-${employee.id}-${employee.email}`} 
+            key={`salary-${employee.id}`} 
             employee={employee} 
             onEdit={openEditModal}
             calculateSalary={calculateSalary}
