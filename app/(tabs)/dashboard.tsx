@@ -555,7 +555,7 @@ export default function DashboardScreen() {
               <Text style={styles.cardTitle}>Yaklaşan Doğum Günleri</Text>
             </View>
             {upcomingBirthdays.map((birthday, index) => (
-              <View key={index} style={styles.listItem}>
+              <View key={`birthday-${index}-${birthday.employeeName}`} style={styles.listItem}>
                 <View style={styles.listItemLeft}>
                   <Text style={styles.listItemName}>{birthday.employeeName}</Text>
                   <Text style={styles.listItemDetail}>
@@ -663,17 +663,13 @@ export default function DashboardScreen() {
             </View>
             <View style={styles.chartContainer}>
               <View style={styles.pieChart}>
-                {positionDistribution.map((item, index) => {
-                  const total = positionDistribution.reduce((sum, p) => sum + p.count, 0);
-                  const percentage = (item.count / total) * 100;
-                  return (
-                    <View key={index} style={styles.chartLegendItem}>
+                {positionDistribution.map((item, index) => (
+                    <View key={`position-${index}-${item.position}`} style={styles.chartLegendItem}>
                       <View style={[styles.chartLegendColor, { backgroundColor: item.color }]} />
                       <Text style={styles.chartLegendText}>{item.position}</Text>
                       <Text style={styles.chartLegendValue}>{item.count}</Text>
                     </View>
-                  );
-                })}
+              ))}
               </View>
               <View style={styles.totalEmployeesCircle}>
                 <Users size={24} color={colors.gray[400]} />
@@ -729,7 +725,7 @@ export default function DashboardScreen() {
                 const percentage = (stat.count / totalEmployees) * 100;
                 
                 return (
-                  <View key={index} style={styles.statRow}>
+                  <View key={`stat-${index}-${stat.position}`} style={styles.statRow}>
                     <View style={styles.statLeft}>
                       <Text style={styles.statLabel}>{stat.position}</Text>
                       <Text style={styles.statValue}>{stat.count} kişi</Text>
