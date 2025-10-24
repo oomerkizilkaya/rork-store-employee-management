@@ -428,16 +428,9 @@ export default function DashboardScreen() {
               style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
               resizeMode="contain"
             />
-            <View style={styles.centerLogoContainer}>
-              <Image 
-                source={{ uri: IMAGES.logo }} 
-                style={styles.centerLogo}
-                resizeMode="contain"
-              />
-            </View>
+            <Text style={styles.pageTitle}>Dashboard</Text>
             <View style={styles.rightSpacer} />
           </View>
-          <Text style={styles.pageTitle}>Dashboard</Text>
         </View>
         
         <Image 
@@ -481,16 +474,9 @@ export default function DashboardScreen() {
             style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
             resizeMode="contain"
           />
-          <View style={styles.centerLogoContainer}>
-            <Image 
-              source={{ uri: IMAGES.logo }} 
-              style={styles.centerLogo}
-              resizeMode="contain"
-            />
-          </View>
+          <Text style={styles.pageTitle}>Dashboard</Text>
           <View style={styles.rightSpacer} />
         </View>
-        <Text style={styles.pageTitle}>Dashboard</Text>
       </View>
       
       <Image 
@@ -831,24 +817,16 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
-  centerLogoContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centerLogo: {
-    width: 80,
-    height: 40,
-  },
+
   rightSpacer: {
     width: 32,
   },
   pageTitle: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 18,
     fontWeight: '700' as const,
     color: colors.gray[900],
     textAlign: 'center',
-    paddingBottom: 12,
   },
   scrollView: {
     flex: 1,
