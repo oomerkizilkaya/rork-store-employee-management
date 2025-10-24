@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Image, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 import { IMAGES } from '@/constants/images';
 import { DollarSign, Search, User as UserIcon, X, Calculator, Clock, Calendar as CalendarIcon } from 'lucide-react-native';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, OvertimeRequest, DaySchedule, EmployeeShift } from '@/types';
 import { getPositionLabel } from '@/utils/positions';
@@ -12,6 +12,7 @@ import { getPositionLabel } from '@/utils/positions';
 export default function SalariesScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
   const [searchQuery, setSearchQuery] = useState('');
   const [employees, setEmployees] = useState<User[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
@@ -25,6 +26,16 @@ export default function SalariesScreen() {
   });
 
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
 
   useEffect(() => {
     loadEmployees();
@@ -285,9 +296,9 @@ export default function SalariesScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-          <Image 
+          <Animated.Image 
             source={{ uri: IMAGES.cup }} 
-            style={styles.cupLogo}
+            style={[styles.cupLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
             resizeMode="contain"
           />
           <View style={styles.centerLogoContainer}>

@@ -60,6 +60,16 @@ export default function DashboardScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const spinValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
   const [leaveBalance, setLeaveBalance] = useState<LeaveBalance | null>(null);
   const [upcomingLeaves, setUpcomingLeaves] = useState<UpcomingLeave[]>([]);
   const [upcomingBirthdays, setUpcomingBirthdays] = useState<UpcomingBirthday[]>([]);

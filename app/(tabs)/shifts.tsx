@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Image, TextInput, Alert } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Image, TextInput, Alert, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
@@ -14,6 +14,7 @@ const DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 export default function ShiftsScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
 
   const today = new Date();
   const [selectedWeek, setSelectedWeek] = useState(getWeekStart(today));
@@ -25,6 +26,16 @@ export default function ShiftsScreen() {
   const stores = ['Kadıköy', 'Üsküdar', 'Kartal', 'Beyoğlu', 'Şişli', 'Beşiktaş'];
   const [selectedStore, setSelectedStore] = useState(user?.store || stores[0]);
   const [modalSelectedStore, setModalSelectedStore] = useState(user?.store || stores[0]);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
 
   const mockShifts: Shift[] = stores.map((storeName, storeIndex) => ({
     id: `store-${storeIndex}`,
@@ -231,9 +242,9 @@ export default function ShiftsScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-          <Image 
+          <Animated.Image 
             source={{ uri: IMAGES.cup }} 
-            style={styles.cupLogo}
+            style={[styles.cupLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
             resizeMode="contain"
           />
           <View style={styles.centerLogoContainer}>

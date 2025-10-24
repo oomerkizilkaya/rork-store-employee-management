@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Animated } from 'react-native';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Pressable, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +31,7 @@ const getPositionLabel = (position: UserPosition): string => {
 
 export default function EmployeesScreen() {
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
@@ -37,6 +39,16 @@ export default function EmployeesScreen() {
   const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
   const [pendingUsers, setPendingUsers] = useState<(User & { password: string })[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
 
   const [allEmployees, setAllEmployees] = useState<User[]>([
     {
@@ -334,24 +346,24 @@ export default function EmployeesScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-        <Image 
-          source={{ uri: IMAGES.cup }} 
-          style={styles.cupLogo}
-          resizeMode="contain"
-        />
-        <View style={styles.centerLogoContainer}>
-          <Image 
-            source={{ uri: IMAGES.logo }} 
-            style={styles.centerLogo}
+          <Animated.Image 
+            source={{ uri: IMAGES.cup }} 
+            style={[styles.cupLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
             resizeMode="contain"
           />
-        </View>
-        <TouchableOpacity 
-          style={styles.downloadButton}
-          onPress={handleExportToExcel}
-        >
-          <Download size={20} color={colors.white} />
-        </TouchableOpacity>
+          <View style={styles.centerLogoContainer}>
+            <Image 
+              source={{ uri: IMAGES.logo }} 
+              style={styles.centerLogo}
+              resizeMode="contain"
+            />
+          </View>
+          <TouchableOpacity 
+            style={styles.downloadButton}
+            onPress={handleExportToExcel}
+          >
+            <Download size={20} color={colors.white} />
+          </TouchableOpacity>
         </View>
         <Text style={styles.pageTitle}>Çalışanlar</Text>
       </View>

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert, FlatList, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert, FlatList, Image, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPin, Plus, Store, X, ChevronRight, User, Users } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function RegionsScreen() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const spinValue = useRef(new Animated.Value(0)).current;
   
   const [regions, setRegions] = useState<Region[]>([]);
 
@@ -29,6 +30,16 @@ export default function RegionsScreen() {
     loadUsers();
     loadRegions();
   }, []);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spinValue]);
 
   const loadRegions = async () => {
     try {
@@ -162,9 +173,9 @@ export default function RegionsScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-        <Image 
+        <Animated.Image 
           source={{ uri: IMAGES.cup }} 
-          style={styles.headerLogo}
+          style={[styles.headerLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
           resizeMode="contain"
         />
         <View style={styles.centerLogoContainer}>
