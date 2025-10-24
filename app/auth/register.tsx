@@ -143,14 +143,11 @@ export default function RegisterScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/vlj615hbzdtcmteddz8yd' }}
-                style={styles.logo}
-                resizeMode="contain"
-                onError={(e) => console.log('Logo error:', e.nativeEvent.error)}
-              />
-            </View>
+            <Image
+              source={{ uri: 'https://i.ibb.co/kQJ1hL8/M-KEL-LOGOSU.png' }}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Kayıt Ol</Text>
             <Text style={styles.subtitle}>Yeni hesap oluşturun</Text>
           </View>
@@ -331,23 +328,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
-  logoContainer: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
-  },
   logo: {
-    width: 140,
-    height: 140,
+    width: 200,
+    height: 100,
+    marginBottom: 20,
   },
   title: {
     fontSize: 32,

@@ -405,8 +405,8 @@ export default function EmployeesScreen() {
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {activeTab === 'pending' ? (
-          pendingUsers.map((employee) => (
-            <View key={`employee-pending-${employee.id}`} style={styles.card}>
+          pendingUsers.map((employee, index) => (
+            <View key={`employee-pending-${employee.id || `idx-${index}`}`} style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.avatar}>
                   <UserIcon size={24} color={colors.warning} />
@@ -466,8 +466,8 @@ export default function EmployeesScreen() {
             </View>
           ))
         ) : (
-          filteredEmployees.map((employee) => (
-          <View key={`employee-active-${employee.id}`} style={styles.card}>
+          filteredEmployees.map((employee, index) => (
+          <View key={`employee-active-${employee.id || `idx-${index}`}`} style={styles.card}>
             <View style={styles.cardHeader}>
               <View style={styles.avatar}>
                 <UserIcon size={24} color={colors.primary} />

@@ -61,14 +61,8 @@ export default function LoginScreen() {
       <StatusBar style="light" />
       
       <Image
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/xi8vq2gz58ryn9weuqy9i' }}
-        style={styles.backgroundLogo}
-        resizeMode="contain"
-      />
-      
-      <Image
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/s6p6x5c99ar6d6ol9zb4c' }}
-        style={styles.donerCup}
+        source={{ uri: 'https://i.ibb.co/kQJ1hL8/M-KEL-LOGOSU.png' }}
+        style={styles.centerLoginLogo}
         resizeMode="contain"
       />
       
@@ -160,23 +154,12 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     marginTop: 100,
   },
-  backgroundLogo: {
+  centerLoginLogo: {
     position: 'absolute',
-    width: 300,
-    height: 300,
-    top: '50%',
-    left: '50%',
-    marginLeft: -150,
-    marginTop: -150,
-    opacity: 0.15,
-    zIndex: 0,
-  },
-  donerCup: {
-    position: 'absolute',
-    width: 150,
-    height: 150,
-    top: 50,
-    left: 20,
+    width: 200,
+    height: 100,
+    top: 80,
+    alignSelf: 'center',
     zIndex: 10,
   },
   title: {
