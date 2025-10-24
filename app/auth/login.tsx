@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     marginTop: 100,
   },
   backgroundLogo: {
-    position: 'absolute' as const,
+    position: 'absolute',
     width: 300,
     height: 300,
     top: '50%',
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   donerCup: {
-    position: 'absolute' as const,
+    position: 'absolute',
     width: 150,
     height: 150,
     top: 50,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: '700' as const,
+    fontWeight: '700',
     color: colors.white,
     marginBottom: 8,
   },
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: colors.gray[700],
     marginBottom: 8,
   },
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: colors.white,
     fontSize: 16,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
   footer: {
     flexDirection: 'row',
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 14,
     color: colors.primary,
-    fontWeight: '700' as const,
+    fontWeight: '700',
   },
 
 });
