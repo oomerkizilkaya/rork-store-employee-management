@@ -1,4 +1,4 @@
 export const IMAGES = {
-  logo: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200&h=200&fit=crop',
-  backgroundLogo: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&h=300&fit=crop',
+  logo: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/9wdsyryb0tyo7udfr4vux',
+  backgroundLogo: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/sk1h5vrj8avuqkk2cxt7e',
 };
