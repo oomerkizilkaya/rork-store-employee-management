@@ -231,11 +231,11 @@ export default function ShiftsScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-        <Image 
-          source={{ uri: IMAGES.logo }} 
-          style={styles.headerLogo}
-          resizeMode="contain"
-        />
+          <Image 
+            source={{ uri: IMAGES.logo }} 
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
         <Text style={styles.title}>Vardiya Yönetimi</Text>
         {canManageShifts && (
           <TouchableOpacity style={styles.addButton} onPress={handleOpenModal}>

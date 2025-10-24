@@ -436,7 +436,11 @@ export default function DashboardScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.topBar}>
-          <Coffee size={28} color={colors.primary} />
+          <Image 
+            source={{ uri: IMAGES.logo }} 
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
           <Text style={styles.topBarTitle}>Dashboard</Text>
         </View>
       </View>
