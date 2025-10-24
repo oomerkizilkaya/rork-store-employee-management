@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Bell, Calendar, Briefcase, FolderOpen, Users, Award, User, MapPin, Clock, LayoutDashboard, DollarSign } from 'lucide-react-native';
+import { Briefcase, FolderOpen, Users, Award, MapPin, Clock, DollarSign, Coffee } from 'lucide-react-native';
 import colors from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -43,14 +43,14 @@ export default function TabLayout() {
         name="dashboard"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Coffee size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="announcements"
         options={{
           title: 'Duyurular',
-          tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Coffee size={size} color={color} />,
         }}
       />
       {canViewShifts && (
@@ -58,7 +58,7 @@ export default function TabLayout() {
           name="shifts"
           options={{
             title: 'Vardiya',
-            tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => <Coffee size={size} color={color} />,
           }}
         />
       )}
@@ -121,7 +121,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profil',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Coffee size={size} color={color} />,
         }}
       />
       </Tabs>
