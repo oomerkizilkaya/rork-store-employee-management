@@ -134,17 +134,23 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       console.log('📊 Toplam kullanıcı sayısı:', allUsers.length);
       console.log('📋 Kayıtlı emailler:', allUsers.map(u => u.email).join(', '));
 
-      const foundUser = allUsers.find(
-        u => u.email.toLowerCase().trim() === email.toLowerCase().trim() && u.password.trim() === password.trim()
-      );
+      const normalizedEmail = email.toLowerCase().trim();
+      const normalizedPassword = password.trim();
+
+      console.log('🔍 Aranıyor - Email:', normalizedEmail, '| Şifre uzunluğu:', normalizedPassword.length);
+
+      const foundUser = allUsers.find(u => {
+        const userEmail = u.email.toLowerCase().trim();
+        const userPassword = u.password.trim();
+        
+        console.log(`  🔎 Kontrol - DB Email: ${userEmail} | DB Şifre: ${userPassword}`);
+        console.log(`  📊 Eşleşme - Email: ${userEmail === normalizedEmail} | Şifre: ${userPassword === normalizedPassword}`);
+        
+        return userEmail === normalizedEmail && userPassword === normalizedPassword;
+      });
 
       if (!foundUser) {
         console.log('❌ Kullanıcı bulunamadı!');
-        console.log('Aranan email:', email.toLowerCase().trim());
-        console.log('Aranan şifre uzunluğu:', password.length);
-        allUsers.forEach(u => {
-          console.log(`  - ${u.email} (şifre: ${u.password})`);
-        });
         throw new Error('Email veya şifre hatalı');
       }
       
