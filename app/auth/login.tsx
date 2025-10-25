@@ -40,7 +40,7 @@ export default function LoginScreen() {
       console.log('Email:', email);
       console.log('Şifre uzunluğu:', password.length);
       
-      await login(email.trim(), password);
+      await login(email.trim(), password.trim());
       console.log('✅ Giriş başarılı! Yönlendiriliyor...');
       
       setLoading(false);

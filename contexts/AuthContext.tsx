@@ -135,7 +135,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       console.log('📋 Kayıtlı emailler:', allUsers.map(u => u.email).join(', '));
 
       const foundUser = allUsers.find(
-        u => u.email.toLowerCase().trim() === email.toLowerCase().trim() && u.password === password
+        u => u.email.toLowerCase().trim() === email.toLowerCase().trim() && u.password.trim() === password.trim()
       );
 
       if (!foundUser) {
