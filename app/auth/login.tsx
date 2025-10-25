@@ -16,7 +16,6 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
 import { LogIn } from 'lucide-react-native';
 
 export default function LoginScreen() {
@@ -62,7 +61,7 @@ export default function LoginScreen() {
       <StatusBar style="light" />
       
       <Image
-        source={{ uri: IMAGES.logo }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/hvg8tvnjdmzx7tn2ps5zy' }}
         style={styles.centerLoginLogo}
         resizeMode="contain"
       />

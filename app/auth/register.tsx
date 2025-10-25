@@ -144,7 +144,7 @@ export default function RegisterScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <Image
-              source={{ uri: 'https://i.ibb.co/kQJ1hL8/M-KEL-LOGOSU.png' }}
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/hvg8tvnjdmzx7tn2ps5zy' }}
               style={styles.logo}
               resizeMode="contain"
             />
