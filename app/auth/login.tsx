@@ -37,16 +37,20 @@ export default function LoginScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
+              console.log('🧽 Veritabanı temizleniyor...');
               await AsyncStorage.clear();
+              console.log('✅ Veritabanı temizlendi');
+              
+              setEmail('admin@tr.mikelcoffee.com');
+              setPassword('123456');
+              
               Alert.alert(
-                'Başarılı',
-                'Veritabanı sıfırlandı. Uygulama yeniden yüklenecek.',
-                [{ text: 'Tamam', onPress: () => {
-                  setEmail('admin@tr.mikelcoffee.com');
-                  setPassword('123456');
-                }}]
+                'Başarılı ✅',
+                'Veritabanı sıfırlandı. Admin hesabı bilgileri otomatik olarak dolduruldu. "Giriş Yap" butonuna tıklayın.',
+                [{ text: 'Tamam' }]
               );
             } catch (error) {
+              console.error('❌ Veritabanı sıfırlama hatası:', error);
               Alert.alert('Hata', 'Veritabanı sıfırlanamadı');
             }
           },

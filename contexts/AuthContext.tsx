@@ -122,56 +122,79 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      console.log('📧 Giriş denemesi:', email);
+      console.log('=== LOGIN BAŞLADI ===');
+      console.log('📧 Giriş denemesi - Email:', email);
+      console.log('🔑 Şifre uzunluğu:', password.length);
+      
+      await seedDefaultUsers();
+      
       const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
       
       if (!allUsersStr) {
-        console.log('⚠️ Veritabanında hiç kullanıcı yok!');
+        console.log('⚠️ HATA: Veritabanında hiç kullanıcı yok!');
         throw new Error('Email veya şifre hatalı');
       }
       
       const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
       console.log('📊 Toplam kullanıcı sayısı:', allUsers.length);
-      console.log('📋 Kayıtlı emailler:', allUsers.map(u => u.email).join(', '));
+      console.log('📋 Kayıtlı kullanıcılar:');
+      allUsers.forEach(u => {
+        console.log(`  - Email: ${u.email} | Şifre: ${u.password} | Onaylı: ${u.isApproved}`);
+      });
 
       const normalizedEmail = email.toLowerCase().trim();
       const normalizedPassword = password.trim();
 
-      console.log('🔍 Aranıyor - Email:', normalizedEmail, '| Şifre uzunluğu:', normalizedPassword.length);
+      console.log('🔍 Aranıyor:');
+      console.log('  Normalized Email:', normalizedEmail);
+      console.log('  Normalized Password:', normalizedPassword);
 
       const foundUser = allUsers.find(u => {
         const userEmail = u.email.toLowerCase().trim();
         const userPassword = u.password.trim();
         
-        console.log(`  🔎 Kontrol - DB Email: ${userEmail} | DB Şifre: ${userPassword}`);
-        console.log(`  📊 Eşleşme - Email: ${userEmail === normalizedEmail} | Şifre: ${userPassword === normalizedPassword}`);
+        const emailMatch = userEmail === normalizedEmail;
+        const passwordMatch = userPassword === normalizedPassword;
         
-        return userEmail === normalizedEmail && userPassword === normalizedPassword;
+        console.log(`\n  🔎 Kontrol:`);
+        console.log(`    DB Email: "${userEmail}"`);
+        console.log(`    Input Email: "${normalizedEmail}"`);
+        console.log(`    Email Match: ${emailMatch}`);
+        console.log(`    DB Password: "${userPassword}"`);
+        console.log(`    Input Password: "${normalizedPassword}"`);
+        console.log(`    Password Match: ${passwordMatch}`);
+        console.log(`    Final Result: ${emailMatch && passwordMatch}`);
+        
+        return emailMatch && passwordMatch;
       });
 
       if (!foundUser) {
-        console.log('❌ Kullanıcı bulunamadı!');
+        console.log('\n❌ HATA: Kullanıcı bulunamadı!');
+        console.log('Lütfen şu bilgilerle deneyin:');
+        console.log('Email: admin@tr.mikelcoffee.com');
+        console.log('Şifre: 123456');
         throw new Error('Email veya şifre hatalı');
       }
       
-      console.log('✅ Kullanıcı bulundu:', foundUser.email);
+      console.log('\n✅ Kullanıcı bulundu:', foundUser.email);
       console.log('🔐 Onay durumu:', foundUser.isApproved);
 
       if (!foundUser.isApproved) {
-        console.log('⛔ Hesap onaylı değil!');
+        console.log('⛔ HATA: Hesap onaylı değil!');
         throw new Error('Hesabınız henüz onaylanmadı. Lütfen yöneticinizle iletişime geçin.');
       }
 
       const { password: _, ...userWithoutPassword } = foundUser;
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userWithoutPassword));
-      console.log('💾 Kullanıcı kaydedildi');
+      console.log('💾 Kullanıcı storage\'a kaydedildi');
       setUser(userWithoutPassword);
-      console.log('✅ Giriş tamamlandı!');
+      console.log('✅ GİRİŞ TAMAMLANDI!');
+      console.log('=== LOGIN BİTTİ ===\n');
     } catch (error) {
       console.error('❌ Login hatası:', error);
       throw error;
     }
-  }, []);
+  }, [seedDefaultUsers]);
 
   const register = useCallback(async (userData: Omit<User, 'id'> & { password: string }) => {
     console.log('🔵 Kayıt işlemi başladı:', userData.email);
