@@ -6,6 +6,7 @@ import { VideoView, useVideoPlayer } from 'expo-video';
 
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { Plus, Search, Edit, Trash2, Send, X, Play } from 'lucide-react-native';
 import { Announcement } from '@/types';
 import { sendAnnouncementNotification } from '@/utils/notifications';
@@ -236,6 +237,11 @@ export default function AnnouncementsScreen() {
 
   return (
     <View style={styles.container}>
+      <Image 
+        source={{ uri: IMAGES.backgroundLogo }} 
+        style={styles.backgroundLogo}
+        resizeMode="contain"
+      />
       {canManage && (
         <View style={styles.createButtonContainer}>
           <TouchableOpacity 
@@ -442,6 +448,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  backgroundLogo: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    top: '40%',
+    left: '50%',
+    marginLeft: -100,
+    marginTop: -100,
+    opacity: 0.05,
+    zIndex: 0,
   },
   createButtonContainer: {
     position: 'absolute' as const,

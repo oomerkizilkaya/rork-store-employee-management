@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Image, TextInput, Alert } from 'react-native';
+import { IMAGES } from '@/constants/images';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 import { Calendar, Plus, ChevronLeft, ChevronRight, User, X, Clock, Check } from 'lucide-react-native';
@@ -222,6 +223,11 @@ export default function ShiftsScreen() {
 
   return (
     <View style={styles.container}>
+      <Image 
+        source={{ uri: IMAGES.backgroundLogo }} 
+        style={styles.backgroundLogo}
+        resizeMode="contain"
+      />
       {canManageShifts && (
         <View style={styles.createButtonContainer}>
           <TouchableOpacity style={styles.addButton} onPress={handleOpenModal}>
@@ -542,6 +548,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  backgroundLogo: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    top: '40%',
+    left: '50%',
+    marginLeft: -100,
+    marginTop: -100,
+    opacity: 0.05,
+    zIndex: 0,
   },
   createButtonContainer: {
     position: 'absolute' as const,

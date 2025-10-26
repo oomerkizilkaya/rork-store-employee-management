@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
+import { IMAGES } from '@/constants/images';
 import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase, User as UserIcon, TrendingUp } from 'lucide-react-native';
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -414,6 +415,11 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      <Image 
+        source={{ uri: IMAGES.backgroundLogo }} 
+        style={styles.backgroundLogo}
+        resizeMode="contain"
+      />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
@@ -716,6 +722,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  backgroundLogo: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    top: '40%',
+    left: '50%',
+    marginLeft: -100,
+    marginTop: -100,
+    opacity: 0.05,
+    zIndex: 0,
   },
 
   scrollView: {
