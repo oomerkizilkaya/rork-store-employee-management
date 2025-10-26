@@ -4,7 +4,7 @@ import { Animated } from 'react-native';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Pressable, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
-import * as FileSystem from 'expo-file-system';
+
 import * as Sharing from 'expo-sharing';
 import { Stack } from 'expo-router';
 
@@ -323,16 +323,16 @@ export default function EmployeesScreen() {
         URL.revokeObjectURL(url);
         Alert.alert('Başarılı', 'Dosya indirildi.');
       } else {
-        const fileUri = FileSystem.documentDirectory + 'çalışanlar.csv';
-        await FileSystem.writeAsStringAsync(fileUri, csvContent, {
-          encoding: FileSystem.EncodingType.UTF8,
-        });
-
         const isAvailable = await Sharing.isAvailableAsync();
         if (isAvailable) {
-          await Sharing.shareAsync(fileUri);
+          const uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+          await Sharing.shareAsync(uri, {
+            mimeType: 'text/csv',
+            dialogTitle: 'Çalışanlar Listesi',
+            UTI: 'public.comma-separated-values-text',
+          });
         } else {
-          Alert.alert('Başarılı', 'Dosya kaydedildi: ' + fileUri);
+          Alert.alert('Hata', 'Paylaşım özelliği kullanılamıyor.');
         }
       }
     } catch (error) {
