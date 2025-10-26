@@ -38,8 +38,9 @@ export const trpcClient = createTRPCClient<AppRouter>({
           console.log('📥 Response headers:', Object.fromEntries(res.headers.entries()));
           
           if (!res.ok && res.status !== 200) {
-            const text = await res.text();
-            console.error('❌ Response error:', text);
+            const cloned = res.clone();
+            const text = await cloned.text();
+            console.error('❌ Response error:', res.status, text);
           }
           
           return res;
@@ -73,8 +74,9 @@ export function getTRPCClientOptions() {
             console.log('📥 Batch response status:', res.status);
             
             if (!res.ok && res.status !== 200) {
-              const text = await res.text();
-              console.error('❌ Batch response error:', text);
+              const cloned = res.clone();
+              const text = await cloned.text();
+              console.error('❌ Batch response error:', res.status, text);
             }
             
             return res;
