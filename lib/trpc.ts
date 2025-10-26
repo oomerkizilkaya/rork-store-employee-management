@@ -17,14 +17,11 @@ const getBaseUrl = () => {
 };
 
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-  console.log('📡 Request to:', typeof input === 'string' ? input : input.toString());
+  console.log('📡 tRPC Request:', typeof input === 'string' ? input : input.toString());
+  console.log('📡 Request headers:', init?.headers);
   
   const response = await fetch(input, init);
   console.log('📡 Response status:', response.status, response.statusText);
-  
-  if (!response.ok) {
-    console.log('❌ Response error:', response.status, response.statusText);
-  }
   
   return response;
 };
@@ -43,6 +40,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
         }
         return {};
       },
+      methodOverride: 'POST',
     }),
   ],
 });

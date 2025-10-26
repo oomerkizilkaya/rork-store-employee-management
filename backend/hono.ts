@@ -24,6 +24,13 @@ app.use(
     onError({ error, path }) {
       console.error(`❌ tRPC Error on ${path}:`, error);
     },
+    responseMeta() {
+      return {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+    },
   })
 );
 

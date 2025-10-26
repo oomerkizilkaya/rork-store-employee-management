@@ -61,6 +61,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       });
 
       console.log('✅ Giriş başarılı, token kaydediliyor');
+      console.log('🟢 Response:', JSON.stringify(response, null, 2));
       
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
@@ -69,6 +70,9 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       console.log('✅ Kullanıcı bilgileri güncellendi');
     } catch (error) {
       console.error('❌ Login hatası:', error);
+      if (error && typeof error === 'object') {
+        console.error('❌ Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      }
       throw error;
     }
   }, []);
