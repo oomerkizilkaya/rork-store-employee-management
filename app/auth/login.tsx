@@ -11,7 +11,6 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,39 +24,6 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
-
-  const resetDatabase = async () => {
-    Alert.alert(
-      'Veritabanını Sıfırla',
-      'Tüm verileri silip admin hesabını yeniden oluşturmak istiyor musunuz?',
-      [
-        { text: 'İptal', style: 'cancel' },
-        {
-          text: 'Sıfırla',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('🧽 Veritabanı temizleniyor...');
-              await AsyncStorage.clear();
-              console.log('✅ Veritabanı temizlendi');
-              
-              setEmail('admin@tr.mikelcoffee.com');
-              setPassword('123456');
-              
-              Alert.alert(
-                'Başarılı ✅',
-                'Veritabanı sıfırlandı. Admin hesabı bilgileri otomatik olarak dolduruldu. "Giriş Yap" butonuna tıklayın.',
-                [{ text: 'Tamam' }]
-              );
-            } catch (error) {
-              console.error('❌ Veritabanı sıfırlama hatası:', error);
-              Alert.alert('Hata', 'Veritabanı sıfırlanamadı');
-            }
-          },
-        },
-      ]
-    );
-  };
 
   const handleLogin = async () => {
     try {
@@ -84,17 +50,10 @@ export default function LoginScreen() {
       console.error('❌ Giriş hatası:', error);
       const errorMessage = (error as Error).message || 'Giriş başarısız';
       
-      let userFriendlyMessage = errorMessage;
-      if (errorMessage.includes('Email veya şifre hatalı')) {
-        userFriendlyMessage = 'Test hesabı:\nEmail: admin@tr.mikelcoffee.com\nŞifre: 123456\n\nLütfen doğru bilgileri girdiğinizden emin olun.';
-      }
-      
-      Alert.alert('Giriş Başarısız', userFriendlyMessage);
+      Alert.alert('Giriş Başarısız', errorMessage);
       setLoading(false);
     }
   };
-
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -159,20 +118,6 @@ export default function LoginScreen() {
               <Text style={styles.loginButtonText}>
                 {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
               </Text>
-            </TouchableOpacity>
-
-            <View style={styles.testInfoBox}>
-              <Text style={styles.testInfoTitle}>💡 Test Hesabı</Text>
-              <Text style={styles.testInfoText}>Email: admin@tr.mikelcoffee.com</Text>
-              <Text style={styles.testInfoText}>Şifre: 123456</Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.resetButton}
-              onPress={resetDatabase}
-              disabled={loading}
-            >
-              <Text style={styles.resetButtonText}>🔄 Veritabanını Sıfırla</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
@@ -293,40 +238,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
     fontWeight: '700',
-  },
-  testInfoBox: {
-    backgroundColor: colors.gray[50],
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: colors.gray[200],
-  },
-  testInfoTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.gray[800],
-    marginBottom: 8,
-  },
-  testInfoText: {
-    fontSize: 13,
-    color: colors.gray[600],
-    marginBottom: 4,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-  },
-  resetButton: {
-    height: 44,
-    backgroundColor: colors.gray[100],
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-  },
-  resetButtonText: {
-    color: colors.gray[700],
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
