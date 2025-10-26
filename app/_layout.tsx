@@ -22,7 +22,9 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   useEffect(() => {
-    SplashScreen.hideAsync();
+    setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, 2000);
     requestNotificationPermissions();
     scheduleWeeklyShiftReminders();
   }, []);
