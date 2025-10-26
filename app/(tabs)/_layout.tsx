@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 32,
     height: 32,
+    backgroundColor: 'transparent',
   },
   headerText: {
     fontSize: 18,
