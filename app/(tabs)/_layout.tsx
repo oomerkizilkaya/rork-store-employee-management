@@ -37,7 +37,7 @@ export default function TabLayout() {
           headerLeft: () => (
             <View style={styles.headerLeft}>
               <Image 
-                source={{ uri: IMAGES.logo }} 
+                source={{ uri: IMAGES.cup }} 
                 style={styles.logo}
                 resizeMode="contain"
               />
@@ -159,6 +159,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 18,
     fontWeight: '700' as const,
-    color: colors.white,
+    color: '#FF8C00',
   },
 });
