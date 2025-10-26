@@ -17,23 +17,16 @@ const getBaseUrl = () => {
 };
 
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-  try {
-    const response = await fetch(input, init);
-    console.log('📡 Request to:', typeof input === 'string' ? input : input.toString());
-    console.log('📡 Response status:', response.status, response.statusText);
-    
-    if (!response.ok) {
-      console.log('❌ Response error:', response.status, response.statusText);
-      const clonedResponse = response.clone();
-      const text = await clonedResponse.text();
-      console.log('📄 Response body:', text.substring(0, 200));
-    }
-    
-    return response;
-  } catch (error) {
-    console.error('❌ Fetch error:', error);
-    throw error;
+  console.log('📡 Request to:', typeof input === 'string' ? input : input.toString());
+  
+  const response = await fetch(input, init);
+  console.log('📡 Response status:', response.status, response.statusText);
+  
+  if (!response.ok) {
+    console.log('❌ Response error:', response.status, response.statusText);
   }
+  
+  return response;
 };
 
 export const trpcClient = createTRPCClient<AppRouter>({
