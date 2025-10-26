@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image,
+
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -143,11 +143,7 @@ export default function RegisterScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Image
-              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/hvg8tvnjdmzx7tn2ps5zy' }}
-              style={styles.logo}
-              resizeMode="contain"
-            />
+
             <Text style={styles.title}>Kayıt Ol</Text>
             <Text style={styles.subtitle}>Yeni hesap oluşturun</Text>
           </View>
@@ -328,11 +324,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
-  logo: {
-    width: 200,
-    height: 100,
-    marginBottom: 20,
-  },
+
   title: {
     fontSize: 32,
     fontWeight: '700' as const,

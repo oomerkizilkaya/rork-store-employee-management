@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image,
+
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -57,13 +57,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
-      
-      <Image
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/hvg8tvnjdmzx7tn2ps5zy' }}
-        style={styles.centerLoginLogo}
-        resizeMode="contain"
-      />
-      
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -158,14 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     marginTop: 100,
   },
-  centerLoginLogo: {
-    position: 'absolute',
-    width: 200,
-    height: 100,
-    top: 80,
-    alignSelf: 'center',
-    zIndex: 10,
-  },
+
   title: {
     fontSize: 32,
     fontWeight: '700',

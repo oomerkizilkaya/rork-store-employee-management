@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
 import { Calendar, Gift, PartyPopper, Users, Lock, DollarSign, Clock, Briefcase, User as UserIcon, TrendingUp } from 'lucide-react-native';
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -391,16 +390,10 @@ export default function DashboardScreen() {
   if (user.position !== 'insan_kaynaklari') {
     return (
       <View style={styles.container}>
-        <Image 
-          source={{ uri: IMAGES.backgroundLogo }} 
-          style={styles.backgroundLogo}
-          resizeMode="contain"
-        />
-        
         <View style={styles.noAccessContainer}>
           <Lock size={48} color={colors.gray[400]} />
           <Text style={styles.noAccessTitle}>Erişim Yetkiniz Yok</Text>
-          <Text style={styles.noAccessText}>Dashboard'a sadece İnsan Kaynakları yetkileri erişebilir.</Text>
+          <Text style={styles.noAccessText}>Dashboard&apos;a sadece İnsan Kaynakları yetkileri erişebilir.</Text>
         </View>
       </View>
     );
@@ -421,12 +414,6 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: IMAGES.backgroundLogo }} 
-        style={styles.backgroundLogo}
-        resizeMode="contain"
-      />
-
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
@@ -730,16 +717,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  backgroundLogo: {
-    position: 'absolute' as const,
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-    top: '40%',
-    opacity: 0.08,
-    zIndex: 0,
-    pointerEvents: 'none' as const,
-  },
+
   scrollView: {
     flex: 1,
   },
