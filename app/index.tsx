@@ -59,7 +59,7 @@ export default function IndexScreen() {
               transform: [{ scale: scaleAnim }],
             },
           ]}
-          resizeMode="cover"
+          resizeMode="contain"
         />
       </View>
     );
@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   backgroundImage: {
-    width: width * 0.85,
-    height: height * 0.85,
+    width: width,
+    height: height,
   },
   loadingContainer: {
     flex: 1,
