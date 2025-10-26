@@ -4,8 +4,14 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { User } from '@/types';
 import { sendRegistrationNotification, sendRegistrationApprovedNotification } from '@/utils/notifications';
 import { getPositionLabel } from '@/utils/positions';
+import { hashPassword, verifyPassword, generateToken } from '@/utils/crypto';
+import { setSecureItem, getSecureItem, deleteSecureItem, setSecureObject, getSecureObject } from '@/utils/secureStorage';
 
-const STORAGE_KEY = '@mikel_user';
+const AUTH_TOKEN_KEY = '@mikel_auth_token';
+const USER_DATA_KEY = '@mikel_user_data';
+const ALL_USERS_KEY = '@mikel_all_users';
+
+type StoredUser = User & { passwordHash: string };
 
 type AuthContextValue = {
   user: User | null;
@@ -22,31 +28,36 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const seedDefaultUsers = useCallback(async () => {
     try {
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
+      const allUsersStr = await AsyncStorage.getItem(ALL_USERS_KEY);
       
       if (!allUsersStr) {
         console.log('🌱 İlk kullanım tespit edildi, admin kullanıcısı oluşturuluyor...');
-        const testUsers = [
-          {
-            id: '1',
-            employeeId: 'MKL0001',
-            firstName: 'Admin',
-            lastName: 'Admin',
-            email: 'admin@tr.mikelcoffee.com',
-            password: '123456',
-            phone: '05551234567',
-            store: 'Merkez',
-            position: 'insan_kaynaklari' as const,
-            startDate: '2024-01-01',
-            region: 'İstanbul',
-            isApproved: true,
-            approvedBy: ['system'],
-          },
-        ];
-        await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(testUsers));
-        console.log('✅ Admin kullanıcısı oluşturuldu:', JSON.stringify(testUsers[0]));
+        
+        const defaultPassword = 'Admin123';
+        const passwordHash = await hashPassword(defaultPassword);
+        
+        const adminUser: StoredUser = {
+          id: '1',
+          employeeId: 'MKL0001',
+          firstName: 'Admin',
+          lastName: 'Admin',
+          email: 'admin@tr.mikelcoffee.com',
+          passwordHash,
+          phone: '05551234567',
+          store: 'Merkez',
+          position: 'insan_kaynaklari' as const,
+          startDate: '2024-01-01',
+          region: 'İstanbul',
+          isApproved: true,
+          approvedBy: ['system'],
+        };
+        
+        await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify([adminUser]));
+        console.log('✅ Admin kullanıcısı oluşturuldu');
+        console.log('📧 Email: admin@tr.mikelcoffee.com');
+        console.log('🔑 Şifre: Admin123');
       } else {
-        const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
+        const allUsers: StoredUser[] = JSON.parse(allUsersStr);
         console.log('📊 Mevcut kullanıcılar:', allUsers.map(u => ({ email: u.email, isApproved: u.isApproved })));
         
         let adminExists = false;
@@ -62,13 +73,16 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
         
         if (!adminExists) {
           console.log('🔧 Admin kullanıcısı bulunamadı, oluşturuluyor...');
-          const adminUser = {
+          const defaultPassword = 'Admin123';
+          const passwordHash = await hashPassword(defaultPassword);
+          
+          const adminUser: StoredUser = {
             id: '1',
             employeeId: 'MKL0001',
             firstName: 'Admin',
             lastName: 'Admin',
             email: 'admin@tr.mikelcoffee.com',
-            password: '123456',
+            passwordHash,
             phone: '05551234567',
             store: 'Merkez',
             position: 'insan_kaynaklari' as const,
@@ -78,13 +92,13 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
             approvedBy: ['system'],
           };
           allUsers.unshift(adminUser);
-          await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
+          await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify(allUsers));
           console.log('✅ Admin kullanıcısı oluşturuldu');
         } else if (!allUsers[adminIndex].isApproved) {
           console.log('🔧 Admin hesabı onaylanıyor...');
           allUsers[adminIndex].isApproved = true;
           allUsers[adminIndex].approvedBy = ['system'];
-          await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
+          await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify(allUsers));
           console.log('✅ Admin hesabı onaylandı');
         } else {
           console.log('✅ Admin hesabı zaten mevcut ve onaylı');
@@ -97,21 +111,27 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const loadUser = useCallback(async () => {
     try {
-      console.log('Loading user from storage...');
+      console.log('🔄 Kullanıcı yükleniyor...');
       await seedDefaultUsers();
       
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const userData = JSON.parse(stored);
-        console.log('User loaded:', userData.email);
+      const token = await getSecureItem(AUTH_TOKEN_KEY);
+      if (!token) {
+        console.log('❌ Token bulunamadı');
+        setLoading(false);
+        return;
+      }
+      
+      const userData = await getSecureObject<User>(USER_DATA_KEY);
+      if (userData) {
+        console.log('✅ Kullanıcı yüklendi:', userData.email);
         setUser(userData);
       } else {
-        console.log('No user in storage');
+        console.log('❌ Kullanıcı verisi bulunamadı');
+        await deleteSecureItem(AUTH_TOKEN_KEY);
       }
     } catch (error) {
-      console.error('Failed to load user:', error);
+      console.error('❌ Kullanıcı yükleme hatası:', error);
     } finally {
-      console.log('Setting loading to false');
       setLoading(false);
     }
   }, [seedDefaultUsers]);
@@ -122,61 +142,44 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      console.log('=== LOGIN BAŞLADI ===');
-      console.log('📧 Giriş denemesi - Email:', email);
-      console.log('🔑 Şifre uzunluğu:', password.length);
+      console.log('=== GİRİŞ BAŞLADI ===');
+      console.log('📧 Email:', email);
       
       await seedDefaultUsers();
       
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
+      const allUsersStr = await AsyncStorage.getItem(ALL_USERS_KEY);
       
       if (!allUsersStr) {
         console.log('⚠️ HATA: Veritabanında hiç kullanıcı yok!');
         throw new Error('Email veya şifre hatalı');
       }
       
-      const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
+      const allUsers: StoredUser[] = JSON.parse(allUsersStr);
       console.log('📊 Toplam kullanıcı sayısı:', allUsers.length);
-      console.log('📋 Kayıtlı kullanıcılar:');
-      allUsers.forEach(u => {
-        console.log(`  - Email: ${u.email} | Şifre: ${u.password} | Onaylı: ${u.isApproved}`);
-      });
 
       const normalizedEmail = email.toLowerCase().trim();
-      const normalizedPassword = password.trim();
-
-      console.log('🔍 Aranıyor:');
-      console.log('  Normalized Email:', normalizedEmail);
-      console.log('  Normalized Password:', normalizedPassword);
 
       const foundUser = allUsers.find(u => {
         const userEmail = u.email.toLowerCase().trim();
-        const userPassword = u.password.trim();
-        
-        const emailMatch = userEmail === normalizedEmail;
-        const passwordMatch = userPassword === normalizedPassword;
-        
-        console.log(`\n  🔎 Kontrol:`);
-        console.log(`    DB Email: "${userEmail}"`);
-        console.log(`    Input Email: "${normalizedEmail}"`);
-        console.log(`    Email Match: ${emailMatch}`);
-        console.log(`    DB Password: "${userPassword}"`);
-        console.log(`    Input Password: "${normalizedPassword}"`);
-        console.log(`    Password Match: ${passwordMatch}`);
-        console.log(`    Final Result: ${emailMatch && passwordMatch}`);
-        
-        return emailMatch && passwordMatch;
+        return userEmail === normalizedEmail;
       });
 
       if (!foundUser) {
-        console.log('\n❌ HATA: Kullanıcı bulunamadı!');
-        console.log('Lütfen şu bilgilerle deneyin:');
-        console.log('Email: admin@tr.mikelcoffee.com');
-        console.log('Şifre: 123456');
-        throw new Error('Email veya şifre hatalı. Eğer hesabınız yoksa lütfen kayıt olun.');
+        console.log('❌ HATA: Kullanıcı bulunamadı!');
+        throw new Error('Email veya şifre hatalı');
       }
       
-      console.log('\n✅ Kullanıcı bulundu:', foundUser.email);
+      console.log('✅ Kullanıcı bulundu:', foundUser.email);
+      console.log('🔐 Şifre doğrulanıyor...');
+      
+      const passwordValid = await verifyPassword(password, foundUser.passwordHash);
+      
+      if (!passwordValid) {
+        console.log('❌ HATA: Şifre yanlış!');
+        throw new Error('Email veya şifre hatalı');
+      }
+      
+      console.log('✅ Şifre doğrulandı');
       console.log('🔐 Onay durumu:', foundUser.isApproved);
 
       if (!foundUser.isApproved) {
@@ -184,9 +187,13 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
         throw new Error('Hesabınız henüz onaylanmadı. Lütfen yöneticinizle iletişime geçin.');
       }
 
-      const { password: _, ...userWithoutPassword } = foundUser;
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userWithoutPassword));
-      console.log('💾 Kullanıcı storage\'a kaydedildi');
+      const { passwordHash: _, ...userWithoutPassword } = foundUser;
+      
+      const token = generateToken();
+      await setSecureItem(AUTH_TOKEN_KEY, token);
+      await setSecureObject(USER_DATA_KEY, userWithoutPassword);
+      
+      console.log('💾 Token ve kullanıcı secure storage\'a kaydedildi');
       setUser(userWithoutPassword);
       console.log('✅ GİRİŞ TAMAMLANDI!');
       console.log('=== LOGIN BİTTİ ===\n');
@@ -199,8 +206,8 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
   const register = useCallback(async (userData: Omit<User, 'id'> & { password: string }) => {
     console.log('🔵 Kayıt işlemi başladı:', userData.email);
     
-    const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
-    const allUsers: (User & { password: string })[] = allUsersStr 
+    const allUsersStr = await AsyncStorage.getItem(ALL_USERS_KEY);
+    const allUsers: StoredUser[] = allUsersStr 
       ? JSON.parse(allUsersStr) 
       : [];
 
@@ -217,20 +224,31 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
     const nextEmployeeNumber = allUsers.length + 1;
     const employeeId = `MKL${nextEmployeeNumber.toString().padStart(4, '0')}`;
+    
+    console.log('🔐 Şifre hash\'leniyor...');
+    const passwordHash = await hashPassword(userData.password);
 
-    const newUser: User & { password: string } = {
-      ...userData,
+    const newUser: StoredUser = {
       id: Date.now().toString(),
       employeeId,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      phone: userData.phone,
+      store: userData.store,
+      position: userData.position,
+      startDate: userData.startDate,
+      birthDate: userData.birthDate,
+      region: userData.region || 'İstanbul',
+      passwordHash,
       isApproved: false,
       approvedBy: [],
-      region: userData.region || 'İstanbul',
     };
 
     console.log('✅ Yeni kullanıcı oluşturuldu:', newUser.employeeId, newUser.email);
 
     allUsers.push(newUser);
-    await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
+    await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify(allUsers));
     console.log('💾 Kullanıcı veritabanına kaydedildi');
 
     const pendingApprovalsStr = await AsyncStorage.getItem('@mikel_pending_approvals');
@@ -256,10 +274,13 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const logout = useCallback(async () => {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
+      console.log('🚪 Çıkış yapılıyor...');
+      await deleteSecureItem(AUTH_TOKEN_KEY);
+      await deleteSecureItem(USER_DATA_KEY);
       setUser(null);
+      console.log('✅ Çıkış başarılı');
     } catch (error) {
-      console.error('Failed to logout:', error);
+      console.error('❌ Çıkış hatası:', error);
     }
   }, []);
 
@@ -268,21 +289,21 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       if (!user) return;
       
       const updatedUser = { ...user, ...userData };
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
+      await setSecureObject(USER_DATA_KEY, updatedUser);
       
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
+      const allUsersStr = await AsyncStorage.getItem(ALL_USERS_KEY);
       if (allUsersStr) {
-        const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
+        const allUsers: StoredUser[] = JSON.parse(allUsersStr);
         const userIndex = allUsers.findIndex(u => u.id === user.id);
         if (userIndex !== -1) {
           allUsers[userIndex] = { ...allUsers[userIndex], ...userData };
-          await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
+          await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify(allUsers));
         }
       }
       
       setUser(updatedUser);
     } catch (error) {
-      console.error('Failed to update user:', error);
+      console.error('❌ Kullanıcı güncelleme hatası:', error);
       throw error;
     }
   }, [user]);

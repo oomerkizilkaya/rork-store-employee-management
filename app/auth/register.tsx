@@ -16,10 +16,11 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { UserPlus } from 'lucide-react-native';
+import { UserPlus, Eye, EyeOff } from 'lucide-react-native';
 import { UserPosition, Region } from '@/types';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { validateEmail, validatePassword } from '@/utils/crypto';
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
@@ -37,6 +38,8 @@ export default function RegisterScreen() {
   });
   const [loading, setLoading] = useState(false);
   const [stores, setStores] = useState<string[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
 
@@ -78,6 +81,11 @@ export default function RegisterScreen() {
       return;
     }
 
+    if (!validateEmail(email)) {
+      Alert.alert('Hata', 'Geçerli bir email adresi girin');
+      return;
+    }
+
     const regionsStr = await AsyncStorage.getItem('@mikel_regions');
     let region = 'İstanbul';
     if (regionsStr) {
@@ -93,8 +101,9 @@ export default function RegisterScreen() {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert('Hata', 'Şifre en az 6 karakter olmalıdır');
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      Alert.alert('Şifre Hatası', passwordValidation.message || 'Geçersiz şifre');
       return;
     }
 
@@ -259,30 +268,55 @@ export default function RegisterScreen() {
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Şifre *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="••••••••"
-                value={formData.password}
-                onChangeText={(text) => setFormData({ ...formData, password: text })}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!loading}
-              />
+              <Text style={styles.passwordHint}>En az 8 karakter, büyük/küçük harf ve rakam içermeli</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChangeText={(text) => setFormData({ ...formData, password: text })}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeButton}
+                >
+                  {showPassword ? (
+                    <EyeOff size={20} color={colors.gray[500]} />
+                  ) : (
+                    <Eye size={20} color={colors.gray[500]} />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Şifre Tekrar *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="••••••••"
-                value={formData.confirmPassword}
-                onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!loading}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={styles.eyeButton}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} color={colors.gray[500]} />
+                  ) : (
+                    <Eye size={20} color={colors.gray[500]} />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity
@@ -434,5 +468,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
     fontWeight: '700' as const,
+  },
+  passwordHint: {
+    fontSize: 12,
+    color: colors.gray[500],
+    marginBottom: 4,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.gray[300],
+    borderRadius: 12,
+    backgroundColor: colors.white,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 48,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: colors.gray[900],
+  },
+  eyeButton: {
+    padding: 12,
   },
 });
