@@ -22,7 +22,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
       async headers() {
-        const token = await getSecureItem('@mikel_auth_token');
+        const token = await getSecureItem('mikel_auth_token');
         if (token) {
           return {
             authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export function getTRPCClientOptions() {
         url: `${getBaseUrl()}/api/trpc`,
         transformer: superjson,
         async headers() {
-          const token = await getSecureItem('@mikel_auth_token');
+          const token = await getSecureItem('mikel_auth_token');
           if (token) {
             return {
               authorization: `Bearer ${token}`,

@@ -4,8 +4,8 @@ import { User } from '@/types';
 import { setSecureItem, getSecureItem, deleteSecureItem, setSecureObject } from '@/utils/secureStorage';
 import { trpcClient } from '@/lib/trpc';
 
-const AUTH_TOKEN_KEY = '@mikel_auth_token';
-const USER_DATA_KEY = '@mikel_user_data';
+const AUTH_TOKEN_KEY = 'mikel_auth_token';
+const USER_DATA_KEY = 'mikel_user_data';
 
 type AuthContextValue = {
   user: User | null;
