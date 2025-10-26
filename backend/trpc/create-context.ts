@@ -1,10 +1,24 @@
 import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
+import { verifyJWT } from "../lib/auth";
+import { db } from "../db/database";
 
 export const createContext = async (opts: FetchCreateContextFnOptions) => {
+  const authHeader = opts.req.headers.get('authorization');
+  let userId: string | null = null;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    const decoded = verifyJWT(token);
+    if (decoded) {
+      userId = decoded.userId;
+    }
+  }
+
   return {
     req: opts.req,
+    userId,
   };
 };
 
@@ -16,3 +30,24 @@ const t = initTRPC.context<Context>().create({
 
 export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
+
+const isAuthed = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.userId) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  
+  const user = await db.getUserById(ctx.userId);
+  if (!user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      userId: ctx.userId,
+      user,
+    },
+  });
+});
+
+export const protectedProcedure = t.procedure.use(isAuthed);
