@@ -100,21 +100,8 @@ export default function RegionsScreen() {
         <View style={styles.headerWrapper}>
           <View style={[styles.headerBackground, { height: insets.top }]} />
           <View style={styles.header}>
-          <Image 
-            source={{ uri: IMAGES.cup }} 
-            style={styles.headerLogo}
-            resizeMode="contain"
-          />
-          <View style={styles.centerLogoContainer}>
-            <Image 
-              source={{ uri: IMAGES.logo }} 
-              style={styles.centerLogo}
-              resizeMode="contain"
-            />
+            <Text style={styles.pageTitle}>Bölge Yönetimi</Text>
           </View>
-          <View style={styles.rightSpacer} />
-          </View>
-          <Text style={styles.pageTitle}>Bölge Yönetimi</Text>
         </View>
         <View style={styles.emptyState}>
           <MapPin size={64} color={colors.gray[300]} />
@@ -173,27 +160,13 @@ export default function RegionsScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-        <Animated.Image 
-          source={{ uri: IMAGES.cup }} 
-          style={[styles.headerLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
-          resizeMode="contain"
-        />
-        <View style={styles.centerLogoContainer}>
-          <Image 
-            source={{ uri: IMAGES.logo }} 
-            style={styles.centerLogo}
-            resizeMode="contain"
-          />
+          <Text style={styles.pageTitle}>Bölge Yönetimi</Text>
+          {hasFullAccess && (
+            <TouchableOpacity style={styles.addButton} onPress={() => setShowModal(true)}>
+              <Plus size={20} color={colors.white} />
+            </TouchableOpacity>
+          )}
         </View>
-        {hasFullAccess ? (
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowModal(true)}>
-          <Plus size={20} color={colors.white} />
-        </TouchableOpacity>
-        ) : (
-          <View style={styles.rightSpacer} />
-        )}
-        </View>
-        <Text style={styles.pageTitle}>Bölge Yönetimi</Text>
       </View>
 
       <Image 
@@ -461,28 +434,11 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 12,
   },
-  headerLogo: {
-    width: 32,
-    height: 32,
-  },
-  centerLogoContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centerLogo: {
-    width: 80,
-    height: 40,
-  },
-  rightSpacer: {
-    width: 44,
-  },
   pageTitle: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 20,
     fontWeight: '700' as const,
     color: colors.gray[900],
-    textAlign: 'center',
-    paddingBottom: 12,
   },
   addButton: {
     backgroundColor: colors.primary,

@@ -265,13 +265,7 @@ export default function SalariesScreen() {
         <View style={styles.headerWrapper}>
           <View style={[styles.headerBackground, { height: insets.top }]} />
           <View style={styles.header}>
-            <Image 
-              source={{ uri: IMAGES.cup }} 
-              style={styles.cupLogo}
-              resizeMode="contain"
-            />
             <Text style={styles.pageTitle}>Maaşlar</Text>
-            <View style={styles.rightSpacer} />
           </View>
         </View>
         
@@ -289,13 +283,7 @@ export default function SalariesScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-          <Animated.Image 
-            source={{ uri: IMAGES.cup }} 
-            style={[styles.cupLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
-            resizeMode="contain"
-          />
           <Text style={styles.pageTitle}>Maaşlar</Text>
-          <View style={styles.rightSpacer} />
         </View>
       </View>
 
@@ -653,24 +641,15 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 20,
-    gap: 12,
-  },
-  cupLogo: {
-    width: 32,
-    height: 32,
-  },
-
-  rightSpacer: {
-    width: 32,
   },
   pageTitle: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700' as const,
     color: colors.gray[900],
-    textAlign: 'center',
   },
   searchContainer: {
     flexDirection: 'row',

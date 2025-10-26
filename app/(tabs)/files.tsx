@@ -299,15 +299,15 @@ export default function FilesScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-        <Text style={styles.pageTitle}>Dosyalar</Text>
-        {canShare && (
-          <TouchableOpacity 
-            style={styles.uploadButton}
-            onPress={() => setShowUploadModal(true)}
-          >
-            <Plus size={20} color={colors.white} />
-          </TouchableOpacity>
-        )}
+          <Text style={styles.pageTitle}>Dosyalar</Text>
+          {canShare && (
+            <TouchableOpacity 
+              style={styles.uploadButton}
+              onPress={() => setShowUploadModal(true)}
+            >
+              <Plus size={20} color={colors.white} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
