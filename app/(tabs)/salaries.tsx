@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Image, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
+import { Stack } from 'expo-router';
 import colors from '@/constants/colors';
 import { IMAGES } from '@/constants/images';
 import { DollarSign, Search, User as UserIcon, X, Calculator, Clock, Calendar as CalendarIcon } from 'lucide-react-native';
@@ -280,6 +281,21 @@ export default function SalariesScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerLeft: () => (
+            <View style={styles.headerLeftContainer}>
+              <Image
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/mpnkmxdel413dnct5qtrw' }}
+                style={styles.headerLogo}
+                resizeMode="contain"
+              />
+              <Text style={styles.headerTitle}>MikelStaff</Text>
+            </View>
+          ),
+          headerTitle: '',
+        }}
+      />
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
@@ -976,5 +992,20 @@ const styles = StyleSheet.create({
     color: colors.gray[600],
     textAlign: 'center',
     lineHeight: 24,
+  },
+  headerLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 8,
+  },
+  headerLogo: {
+    width: 32,
+    height: 32,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: colors.white,
   },
 });

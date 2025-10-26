@@ -6,6 +6,7 @@ import { VideoView, useVideoPlayer } from 'expo-video';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Stack } from 'expo-router';
 
 import colors from '@/constants/colors';
 import { Video, Image as ImageIcon, FileText, ChefHat, Download, X, Play, Plus } from 'lucide-react-native';
@@ -296,6 +297,21 @@ export default function FilesScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerLeft: () => (
+            <View style={styles.headerLeftContainer}>
+              <Image
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/mpnkmxdel413dnct5qtrw' }}
+                style={styles.headerLogo}
+                resizeMode="contain"
+              />
+              <Text style={styles.headerTitle}>MikelStaff</Text>
+            </View>
+          ),
+          headerTitle: '',
+        }}
+      />
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
@@ -925,5 +941,20 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 48,
+  },
+  headerLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 8,
+  },
+  headerLogo: {
+    width: 32,
+    height: 32,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: colors.white,
   },
 });

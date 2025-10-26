@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Stack } from 'expo-router';
 
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
@@ -143,6 +144,21 @@ export default function ScoresScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerLeft: () => (
+            <View style={styles.headerLeftContainer}>
+              <Image
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/mpnkmxdel413dnct5qtrw' }}
+                style={styles.headerLogo}
+                resizeMode="contain"
+              />
+              <Text style={styles.headerTitle}>MikelStaff</Text>
+            </View>
+          ),
+          headerTitle: '',
+        }}
+      />
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
@@ -726,6 +742,21 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 15,
     fontWeight: '600' as const,
+    color: colors.white,
+  },
+  headerLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 8,
+  },
+  headerLogo: {
+    width: 32,
+    height: 32,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700' as const,
     color: colors.white,
   },
 });

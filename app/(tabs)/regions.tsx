@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal,
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPin, Plus, Store, X, ChevronRight, User, Users } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { Stack } from 'expo-router';
 import colors from '@/constants/colors';
 import { IMAGES } from '@/constants/images';
 import { Region, User as UserType } from '@/types';
@@ -157,6 +158,21 @@ export default function RegionsScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerLeft: () => (
+            <View style={styles.headerLeftContainer}>
+              <Image
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/mpnkmxdel413dnct5qtrw' }}
+                style={styles.headerLogo}
+                resizeMode="contain"
+              />
+              <Text style={styles.headerTitle}>MikelStaff</Text>
+            </View>
+          ),
+          headerTitle: '',
+        }}
+      />
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
@@ -670,5 +686,20 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 16,
     color: colors.gray[900],
+  },
+  headerLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 8,
+  },
+  headerLogo: {
+    width: 32,
+    height: 32,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: colors.white,
   },
 });
