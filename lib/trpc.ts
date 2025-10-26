@@ -20,7 +20,6 @@ export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpLink({
       url: `${getBaseUrl()}/api/trpc`,
-      transformer: undefined,
       async headers() {
         const token = await getSecureItem('mikel_auth_token');
         console.log('📡 tRPC Request - Token:', token ? 'Present' : 'None');
@@ -58,7 +57,6 @@ export function getTRPCClientOptions() {
     links: [
       httpBatchLink({
         url: `${getBaseUrl()}/api/trpc`,
-        transformer: undefined,
         async headers() {
           const token = await getSecureItem('mikel_auth_token');
           console.log('📡 tRPC Batch Request - Token:', token ? 'Present' : 'None');

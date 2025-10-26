@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { trpcServer } from "@hono/trpc-server";
 
 const app = new Hono();
 
@@ -14,21 +14,29 @@ app.use("*", cors({
   credentials: true,
 }));
 
-app.all("/api/trpc/*", async (c) => {
-  const response = await fetchRequestHandler({
-    endpoint: "/api/trpc",
-    req: c.req.raw,
+app.use(
+  "/api/trpc/*",
+  trpcServer({
     router: appRouter,
-    createContext: (opts) => createContext(opts),
+    createContext: async (opts, c) => {
+      return createContext(opts);
+    },
     onError({ error, path }) {
       console.error(`❌ tRPC Error on ${path}:`, error);
     },
-  });
-  return response;
-});
+  })
+);
 
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
+});
+
+app.get("/api", (c) => {
+  return c.json({ status: "ok", message: "tRPC API is running" });
+});
+
+app.notFound((c) => {
+  return c.json({ error: "Not Found" }, 404);
 });
 
 export default app;

@@ -62,15 +62,23 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       });
 
       console.log('✅ Backend giriş başarılı');
+      console.log('🔑 Token alındı');
       
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
       
       setUser(response.user as User);
       console.log('✅ GİRİŞ TAMAMLANDI!');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Login hatası:', error);
-      throw error;
+      
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = (error as { message: string }).message;
+        console.error('💬 Hata mesajı:', errorMessage);
+        throw new Error(errorMessage);
+      }
+      
+      throw new Error('Giriş başarısız. Lütfen tekrar deneyin.');
     }
   }, []);
 

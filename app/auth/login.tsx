@@ -45,9 +45,25 @@ export default function LoginScreen() {
       console.log('✅ Giriş başarılı! Yönlendiriliyor...');
       
       router.replace('/(tabs)/announcements');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Giriş hatası:', error);
-      const errorMessage = (error as Error).message || 'Giriş başarısız';
+      
+      let errorMessage = 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+      
+      if (error && typeof error === 'object') {
+        if ('message' in error) {
+          const message = (error as { message: string }).message;
+          if (message.includes('UNAUTHORIZED') || message.includes('Email veya şifre hatalı')) {
+            errorMessage = 'Email veya şifre hatalı. Lütfen tekrar deneyin.';
+          } else if (message.includes('FORBIDDEN') || message.includes('onaylanmadı')) {
+            errorMessage = 'Hesabınız henüz onaylanmamış. Lütfen yöneticinizle iletişime geçin.';
+          } else if (message.includes('network') || message.includes('fetch')) {
+            errorMessage = 'Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.';
+          } else if (message) {
+            errorMessage = message;
+          }
+        }
+      }
       
       Alert.alert('Giriş Başarısız', errorMessage);
     } finally {
