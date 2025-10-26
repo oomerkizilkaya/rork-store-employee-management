@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   backgroundImage: {
-    width: width,
-    height: height,
+    width: width * 0.85,
+    height: height * 0.85,
   },
   loadingContainer: {
     flex: 1,
