@@ -3,7 +3,6 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { requestNotificationPermissions, scheduleWeeklyShiftReminders } from "@/utils/notifications";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,8 +24,6 @@ export default function RootLayout() {
     setTimeout(() => {
       SplashScreen.hideAsync();
     }, 2000);
-    requestNotificationPermissions();
-    scheduleWeeklyShiftReminders();
   }, []);
 
   return (

@@ -57,6 +57,11 @@ export default function LoginScreen() {
   return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="light" />
+        <Image
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/p3xx7q0899ab7jo65ozfv' }}
+          style={styles.backgroundLogo}
+          resizeMode="contain"
+        />
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -64,11 +69,6 @@ export default function LoginScreen() {
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.header}>
-              <Image
-                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/p3xx7q0899ab7jo65ozfv' }}
-                style={styles.logo}
-                resizeMode="contain"
-              />
               <Text style={styles.title}>Hoş Geldiniz</Text>
               <Text style={styles.subtitle}>Devam etmek için giriş yapın</Text>
             </View>
@@ -144,8 +144,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#6B4423',
   },
+  backgroundLogo: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    top: '50%',
+    left: '50%',
+    marginTop: -150,
+    marginLeft: -150,
+    opacity: 0.1,
+    zIndex: 0,
+  },
   keyboardView: {
     flex: 1,
+    zIndex: 1,
   },
   scrollContent: {
     flexGrow: 1,
@@ -156,11 +168,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
     marginTop: 60,
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
   },
 
   title: {
