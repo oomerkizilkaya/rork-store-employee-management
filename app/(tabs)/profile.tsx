@@ -1,6 +1,5 @@
 
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, Image, Animated } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,7 +18,7 @@ import {
   Save
 } from 'lucide-react-native';
 import { UserPosition } from '@/types';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { positionOptions } from '@/utils/positions';
 
 const getPositionLabel = (position: UserPosition): string => {
@@ -40,24 +39,12 @@ const getPositionLabel = (position: UserPosition): string => {
 export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuth();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const spinValue = useRef(new Animated.Value(0)).current;
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
 
   useEffect(() => {
     setEditedUser(user);
   }, [user]);
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(spinValue, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, [spinValue]);
 
   if (!user) return null;
 
@@ -108,25 +95,8 @@ export default function ProfileScreen() {
     setIsEditing(false);
   };
 
-  const spin = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
   return (
     <View style={styles.container}>
-      <View style={styles.headerWrapper}>
-        <View style={[styles.headerBackground, { height: insets.top }]} />
-        <View style={styles.topBar}>
-          <Animated.Image 
-            source={{ uri: IMAGES.cup }} 
-            style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
-            resizeMode="contain"
-          />
-          <Text style={styles.pageTitle}>Profil</Text>
-          <View style={styles.rightSpacer} />
-        </View>
-      </View>
       <Image 
         source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
@@ -345,36 +315,6 @@ const styles = StyleSheet.create({
     opacity: 0.08,
     zIndex: 0,
     pointerEvents: 'none' as const,
-  },
-  headerWrapper: {
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
-  },
-  headerBackground: {
-    backgroundColor: colors.white,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 12,
-  },
-  cupLogo: {
-    width: 32,
-    height: 32,
-  },
-
-  rightSpacer: {
-    width: 32,
-  },
-  pageTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: colors.gray[900],
-    textAlign: 'center',
   },
   scrollView: {
     flex: 1,

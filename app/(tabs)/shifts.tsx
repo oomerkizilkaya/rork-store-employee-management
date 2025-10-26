@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Image, TextInput, Alert, Animated } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Image, TextInput, Alert } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 import { IMAGES } from '@/constants/images';
@@ -13,8 +12,6 @@ const DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
 export default function ShiftsScreen() {
   const { user } = useAuth();
-  const insets = useSafeAreaInsets();
-  const spinValue = useRef(new Animated.Value(0)).current;
 
   const today = new Date();
   const [selectedWeek, setSelectedWeek] = useState(getWeekStart(today));
@@ -27,15 +24,7 @@ export default function ShiftsScreen() {
   const [selectedStore, setSelectedStore] = useState(user?.store || stores[0]);
   const [modalSelectedStore, setModalSelectedStore] = useState(user?.store || stores[0]);
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(spinValue, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, [spinValue]);
+
 
   const mockShifts: Shift[] = stores.map((storeName, storeIndex) => ({
     id: `store-${storeIndex}`,
@@ -239,18 +228,6 @@ export default function ShiftsScreen() {
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
-      <View style={styles.headerWrapper}>
-        <View style={[styles.headerBackground, { height: insets.top }]} />
-        <View style={styles.header}>
-          <Animated.Image 
-            source={{ uri: IMAGES.cup }} 
-            style={[styles.cupLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
-            resizeMode="contain"
-          />
-          <Text style={styles.pageTitle}>Vardiya Planlaması</Text>
-          <View style={styles.rightSpacer} />
-        </View>
-      </View>
 
       {canManageShifts && (
         <View style={styles.createButtonContainer}>
@@ -573,14 +550,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  headerWrapper: {
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
-  },
-  headerBackground: {
-    backgroundColor: colors.white,
-  },
   backgroundLogo: {
     position: 'absolute' as const,
     width: 300,
@@ -590,29 +559,6 @@ const styles = StyleSheet.create({
     opacity: 0.08,
     zIndex: 0,
     pointerEvents: 'none' as const,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 12,
-  },
-  cupLogo: {
-    width: 32,
-    height: 32,
-  },
-
-  rightSpacer: {
-    width: 32,
-  },
-  pageTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: colors.gray[900],
-    textAlign: 'center',
   },
   createButtonContainer: {
     position: 'absolute' as const,

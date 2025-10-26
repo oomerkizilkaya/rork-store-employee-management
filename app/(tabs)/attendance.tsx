@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert, Image, Animated } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert, Image } from 'react-native';
 import { Clock, Check, X, AlertCircle, Store as StoreIcon } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
@@ -11,22 +10,10 @@ import { canViewRegionalData, canCreateAttendance } from '@/utils/permissions';
 
 export default function AttendanceScreen() {
   const { user } = useAuth();
-  const insets = useSafeAreaInsets();
-  const spinValue = useRef(new Animated.Value(0)).current;
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'checkIn' | 'checkOut'>('checkIn');
 
   const [reason, setReason] = useState('');
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(spinValue, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, [spinValue]);
 
   const canViewRegional = user ? canViewRegionalData(user.position) : false;
   const canCreate = user ? canCreateAttendance(user.position) : true;
@@ -144,26 +131,8 @@ export default function AttendanceScreen() {
     setShowModal(true);
   };
 
-  const spin = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
   return (
     <View style={styles.container}>
-      <View style={styles.headerWrapper}>
-        <View style={[styles.headerBackground, { height: insets.top }]} />
-        <View style={styles.topBar}>
-          <Animated.Image 
-            source={{ uri: IMAGES.cup }} 
-            style={[styles.cupLogo, { transform: [{ rotate: spin }] }]}
-            resizeMode="contain"
-          />
-          <Text style={styles.pageTitle}>Giriş/Çıkış</Text>
-          <View style={styles.rightSpacer} />
-        </View>
-      </View>
-
       <Image 
         source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
@@ -358,36 +327,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  headerWrapper: {
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
-  },
-  headerBackground: {
-    backgroundColor: colors.white,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 12,
-  },
-  cupLogo: {
-    width: 32,
-    height: 32,
-  },
-
-  rightSpacer: {
-    width: 32,
-  },
-  pageTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: colors.gray[900],
-    textAlign: 'center',
   },
   backgroundLogo: {
     position: 'absolute' as const,
