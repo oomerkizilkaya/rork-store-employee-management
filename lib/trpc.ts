@@ -40,7 +40,6 @@ export const trpcClient = createTRPCClient<AppRouter>({
         }
         return {};
       },
-      methodOverride: 'POST',
     }),
   ],
 });
