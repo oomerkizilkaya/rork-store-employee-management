@@ -38,19 +38,18 @@ export default function LoginScreen() {
       setLoading(true);
       console.log('=== GİRİŞ DENENİYOR ===');
       console.log('Girilen Email:', email.trim());
-      console.log('Girilen Şifre:', password.trim());
-      console.log('Şifre uzunluğu:', password.trim().length);
+      console.log('Girilen Şifre uzunluğu:', password.trim().length);
       
       await login(email.trim(), password.trim());
       console.log('✅ Giriş başarılı! Yönlendiriliyor...');
       
-      setLoading(false);
       router.replace('/(tabs)/announcements');
     } catch (error) {
       console.error('❌ Giriş hatası:', error);
       const errorMessage = (error as Error).message || 'Giriş başarısız';
       
       Alert.alert('Giriş Başarısız', errorMessage);
+    } finally {
       setLoading(false);
     }
   };
@@ -76,6 +75,12 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.form}>
+            <View style={styles.infoBox}>
+              <Text style={styles.infoText}>Demo Hesap:</Text>
+              <Text style={styles.infoValue}>admin@tr.mikelcoffee.com</Text>
+              <Text style={styles.infoValue}>Şifre: 123456</Text>
+            </View>
+
             <View style={styles.inputContainer}>
               <Text style={styles.label}>E-posta</Text>
               <TextInput
@@ -238,5 +243,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
     fontWeight: '700',
+  },
+  infoBox: {
+    backgroundColor: colors.gray[100],
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  infoText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.gray[700],
+    marginBottom: 4,
+  },
+  infoValue: {
+    fontSize: 12,
+    color: colors.gray[600],
   },
 });

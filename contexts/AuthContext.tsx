@@ -173,7 +173,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
         console.log('Lütfen şu bilgilerle deneyin:');
         console.log('Email: admin@tr.mikelcoffee.com');
         console.log('Şifre: 123456');
-        throw new Error('Email veya şifre hatalı');
+        throw new Error('Email veya şifre hatalı. Eğer hesabınız yoksa lütfen kayıt olun.');
       }
       
       console.log('\n✅ Kullanıcı bulundu:', foundUser.email);
