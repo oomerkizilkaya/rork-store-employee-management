@@ -9,8 +9,9 @@ export async function setSecureItem(
   value: string
 ): Promise<void> {
   try {
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9._-]/g, '_');
     if (USE_SECURE_STORE) {
-      await SecureStore.setItemAsync(key, value);
+      await SecureStore.setItemAsync(sanitizedKey, value);
     } else {
       await AsyncStorage.setItem(key, value);
     }
@@ -22,8 +23,9 @@ export async function setSecureItem(
 
 export async function getSecureItem(key: string): Promise<string | null> {
   try {
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9._-]/g, '_');
     if (USE_SECURE_STORE) {
-      return await SecureStore.getItemAsync(key);
+      return await SecureStore.getItemAsync(sanitizedKey);
     } else {
       return await AsyncStorage.getItem(key);
     }
@@ -35,8 +37,9 @@ export async function getSecureItem(key: string): Promise<string | null> {
 
 export async function deleteSecureItem(key: string): Promise<void> {
   try {
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9._-]/g, '_');
     if (USE_SECURE_STORE) {
-      await SecureStore.deleteItemAsync(key);
+      await SecureStore.deleteItemAsync(sanitizedKey);
     } else {
       await AsyncStorage.removeItem(key);
     }
