@@ -1,5 +1,5 @@
-import { createTRPCReact, httpLink } from "@trpc/react-query";
-import { createTRPCClient } from "@trpc/client";
+import { createTRPCReact, httpBatchLink } from "@trpc/react-query";
+import { createTRPCClient, httpLink } from "@trpc/client";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
 import { getSecureItem } from "@/utils/secureStorage";
@@ -33,3 +33,23 @@ export const trpcClient = createTRPCClient<AppRouter>({
     }),
   ],
 });
+
+export function getTRPCClientOptions() {
+  return {
+    links: [
+      httpBatchLink({
+        url: `${getBaseUrl()}/api/trpc`,
+        transformer: superjson,
+        async headers() {
+          const token = await getSecureItem('@mikel_auth_token');
+          if (token) {
+            return {
+              authorization: `Bearer ${token}`,
+            };
+          }
+          return {};
+        },
+      }),
+    ],
+  };
+}
