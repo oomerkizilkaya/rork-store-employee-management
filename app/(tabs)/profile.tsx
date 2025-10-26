@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
+
 import { 
   User as UserIcon, 
   Mail, 
@@ -97,11 +97,6 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: IMAGES.backgroundLogo }} 
-        style={styles.backgroundLogo}
-        resizeMode="contain"
-      />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
@@ -306,16 +301,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  backgroundLogo: {
-    position: 'absolute' as const,
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-    top: '40%',
-    opacity: 0.08,
-    zIndex: 0,
-    pointerEvents: 'none' as const,
-  },
+
   scrollView: {
     flex: 1,
   },
