@@ -9,18 +9,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ImageBackground,
-  Dimensions,
+  Image,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
 import { LogIn } from 'lucide-react-native';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -59,11 +55,6 @@ export default function LoginScreen() {
   };
 
   return (
-    <ImageBackground
-      source={{ uri: IMAGES.loginBackground }}
-      style={styles.backgroundImage}
-      resizeMode="cover"
-    >
       <SafeAreaView style={styles.container}>
         <StatusBar style="light" />
 
@@ -73,6 +64,11 @@ export default function LoginScreen() {
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.header}>
+              <Image
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/p3xx7q0899ab7jo65ozfv' }}
+                style={styles.logo}
+                resizeMode="contain"
+              />
               <Text style={styles.title}>Hoş Geldiniz</Text>
               <Text style={styles.subtitle}>Devam etmek için giriş yapın</Text>
             </View>
@@ -140,18 +136,13 @@ export default function LoginScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-  },
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: '#6B4423',
   },
   keyboardView: {
     flex: 1,
@@ -164,7 +155,12 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 40,
-    marginTop: 100,
+    marginTop: 60,
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
 
   title: {
