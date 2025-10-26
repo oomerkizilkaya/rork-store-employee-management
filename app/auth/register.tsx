@@ -318,13 +318,12 @@ const styles = StyleSheet.create({
   },
   backgroundLogo: {
     position: 'absolute',
-    width: 300,
-    height: 300,
+    width: 250,
+    height: 250,
     top: '50%',
     left: '50%',
-    marginTop: -150,
-    marginLeft: -150,
-    opacity: 0.1,
+    transform: [{ translateX: -125 }, { translateY: -125 }],
+    opacity: 0.15,
     zIndex: 0,
   },
   keyboardView: {
