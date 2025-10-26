@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 120,
+    paddingBottom: 40,
   },
   todayCard: {
     backgroundColor: colors.white,
