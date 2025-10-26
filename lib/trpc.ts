@@ -1,4 +1,4 @@
-import { createTRPCReact, httpBatchLink } from "@trpc/react-query";
+import { createTRPCReact, httpLink as httpLinkReact } from "@trpc/react-query";
 import { createTRPCClient, httpLink } from "@trpc/client";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import { getSecureItem } from "@/utils/secureStorage";
@@ -48,7 +48,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
 export function getTRPCClientOptions() {
   return {
     links: [
-      httpBatchLink({
+      httpLinkReact({
         url: `${getBaseUrl()}/api/trpc`,
         fetch: customFetch,
         async headers() {
