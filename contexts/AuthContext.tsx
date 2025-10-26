@@ -52,20 +52,25 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
   }, [loadUser]);
 
   const login = useCallback(async (email: string, password: string) => {
-    console.log('🔵 Giriş işlemi başladı:', email);
-    
-    const response = await trpcClient.auth.login.mutate({
-      email: email.trim(),
-      password: password.trim(),
-    });
+    try {
+      console.log('🔵 Giriş işlemi başladı:', email);
+      
+      const response = await trpcClient.auth.login.mutate({
+        email: email.trim(),
+        password: password.trim(),
+      });
 
-    console.log('✅ Giriş başarılı, token kaydediliyor');
-    
-    await setSecureItem(AUTH_TOKEN_KEY, response.token);
-    await setSecureObject(USER_DATA_KEY, response.user);
-    
-    setUser(response.user as User);
-    console.log('✅ Kullanıcı bilgileri güncellendi');
+      console.log('✅ Giriş başarılı, token kaydediliyor');
+      
+      await setSecureItem(AUTH_TOKEN_KEY, response.token);
+      await setSecureObject(USER_DATA_KEY, response.user);
+      
+      setUser(response.user as User);
+      console.log('✅ Kullanıcı bilgileri güncellendi');
+    } catch (error) {
+      console.error('❌ Login hatası:', error);
+      throw error;
+    }
   }, []);
 
   const register = useCallback(async (userData: Omit<User, 'id'> & { password: string }) => {

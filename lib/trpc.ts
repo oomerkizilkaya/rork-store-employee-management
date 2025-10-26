@@ -16,10 +16,31 @@ const getBaseUrl = () => {
   );
 };
 
+const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  try {
+    const response = await fetch(input, init);
+    console.log('📡 Request to:', typeof input === 'string' ? input : input.toString());
+    console.log('📡 Response status:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      console.log('❌ Response error:', response.status, response.statusText);
+      const clonedResponse = response.clone();
+      const text = await clonedResponse.text();
+      console.log('📄 Response body:', text.substring(0, 200));
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('❌ Fetch error:', error);
+    throw error;
+  }
+};
+
 export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpLink({
       url: `${getBaseUrl()}/api/trpc`,
+      fetch: customFetch,
       async headers() {
         const token = await getSecureItem('mikel_auth_token');
         if (token) {
@@ -38,6 +59,7 @@ export function getTRPCClientOptions() {
     links: [
       httpBatchLink({
         url: `${getBaseUrl()}/api/trpc`,
+        fetch: customFetch,
         async headers() {
           const token = await getSecureItem('mikel_auth_token');
           if (token) {
