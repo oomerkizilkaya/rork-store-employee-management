@@ -27,41 +27,28 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    try {
-      console.log('=== GİRİŞ BUTONU TIKLANDI ===');
-      
-      if (!email || !password) {
-        console.log('⚠️ Boş alan kontrolü başarısız');
-        Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
-        return;
-      }
+    if (!email || !password) {
+      Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
+      return;
+    }
 
-      setLoading(true);
-      console.log('=== GİRİŞ DENENİYOR ===');
-      console.log('Girilen Email:', email.trim());
-      console.log('Girilen Şifre uzunluğu:', password.trim().length);
-      
+    setLoading(true);
+    
+    try {
       await login(email.trim(), password.trim());
-      console.log('✅ Giriş başarılı! Yönlendiriliyor...');
-      
       router.replace('/(tabs)/announcements');
     } catch (error: unknown) {
-      console.error('❌ Giriş hatası:', error);
-      
       let errorMessage = 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
       
-      if (error && typeof error === 'object') {
-        if ('message' in error) {
-          const message = (error as { message: string }).message;
-          if (message.includes('UNAUTHORIZED') || message.includes('Email veya şifre hatalı')) {
-            errorMessage = 'Email veya şifre hatalı. Lütfen tekrar deneyin.';
-          } else if (message.includes('FORBIDDEN') || message.includes('onaylanmadı')) {
-            errorMessage = 'Hesabınız henüz onaylanmamış. Lütfen yöneticinizle iletişime geçin.';
-          } else if (message.includes('network') || message.includes('fetch')) {
-            errorMessage = 'Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.';
-          } else if (message) {
-            errorMessage = message;
-          }
+      if (error && typeof error === 'object' && 'message' in error) {
+        const message = String((error as { message: string }).message);
+        
+        if (message.includes('Email veya şifre hatalı') || message.includes('UNAUTHORIZED')) {
+          errorMessage = 'Email veya şifre hatalı.';
+        } else if (message.includes('onaylanmadı') || message.includes('FORBIDDEN')) {
+          errorMessage = 'Hesabınız henüz onaylanmamış.';
+        } else if (message) {
+          errorMessage = message;
         }
       }
       

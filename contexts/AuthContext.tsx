@@ -52,34 +52,20 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
   }, [loadUser]);
 
   const login = useCallback(async (email: string, password: string) => {
-    try {
-      console.log('=== GİRİŞ BAŞLADI ===');
-      console.log('📧 Email:', email);
-      
-      const response = await trpcClient.auth.login.mutate({
-        email: email.trim(),
-        password: password.trim(),
-      });
+    console.log('🔵 Giriş işlemi başladı:', email);
+    
+    const response = await trpcClient.auth.login.mutate({
+      email: email.trim(),
+      password: password.trim(),
+    });
 
-      console.log('✅ Backend giriş başarılı');
-      console.log('🔑 Token alındı');
-      
-      await setSecureItem(AUTH_TOKEN_KEY, response.token);
-      await setSecureObject(USER_DATA_KEY, response.user);
-      
-      setUser(response.user as User);
-      console.log('✅ GİRİŞ TAMAMLANDI!');
-    } catch (error: unknown) {
-      console.error('❌ Login hatası:', error);
-      
-      if (error && typeof error === 'object' && 'message' in error) {
-        const errorMessage = (error as { message: string }).message;
-        console.error('💬 Hata mesajı:', errorMessage);
-        throw new Error(errorMessage);
-      }
-      
-      throw new Error('Giriş başarısız. Lütfen tekrar deneyin.');
-    }
+    console.log('✅ Giriş başarılı, token kaydediliyor');
+    
+    await setSecureItem(AUTH_TOKEN_KEY, response.token);
+    await setSecureObject(USER_DATA_KEY, response.user);
+    
+    setUser(response.user as User);
+    console.log('✅ Kullanıcı bilgileri güncellendi');
   }, []);
 
   const register = useCallback(async (userData: Omit<User, 'id'> & { password: string }) => {
