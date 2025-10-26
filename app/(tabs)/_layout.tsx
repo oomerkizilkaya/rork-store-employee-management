@@ -1,7 +1,9 @@
 import { Tabs } from 'expo-router';
 import { Briefcase, FolderOpen, Users, Award, MapPin, Clock, DollarSign, Coffee, Bell, User } from 'lucide-react-native';
+import { View, Image, Text, StyleSheet } from 'react-native';
 import colors from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
+import { IMAGES } from '@/constants/images';
 
 export default function TabLayout() {
   const { user } = useAuth();
@@ -32,6 +34,16 @@ export default function TabLayout() {
           },
           headerTintColor: colors.white,
           headerTitleAlign: 'center',
+          headerLeft: () => (
+            <View style={styles.headerLeft}>
+              <Image 
+                source={{ uri: IMAGES.logo }} 
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <Text style={styles.headerText}>MikelStaff</Text>
+            </View>
+          ),
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.gray[400],
           tabBarStyle: {
@@ -132,3 +144,21 @@ export default function TabLayout() {
       </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 16,
+    gap: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: colors.white,
+  },
+});
