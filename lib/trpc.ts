@@ -1,7 +1,6 @@
 import { createTRPCReact, httpBatchLink } from "@trpc/react-query";
 import { createTRPCClient, httpLink } from "@trpc/client";
 import type { AppRouter } from "@/backend/trpc/app-router";
-import superjson from "superjson";
 import { getSecureItem } from "@/utils/secureStorage";
 
 export const trpc = createTRPCReact<AppRouter>();
@@ -21,7 +20,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpLink({
       url: `${getBaseUrl()}/api/trpc`,
-      transformer: superjson,
+      transformer: undefined,
       async headers() {
         const token = await getSecureItem('mikel_auth_token');
         console.log('📡 tRPC Request - Token:', token ? 'Present' : 'None');
@@ -35,10 +34,19 @@ export const trpcClient = createTRPCClient<AppRouter>({
       },
       fetch(url, options) {
         console.log('🔵 Making request to:', url);
-        return fetch(url, options).then(res => {
+        return fetch(url, options).then(async (res) => {
           console.log('📥 Response status:', res.status);
           console.log('📥 Response headers:', Object.fromEntries(res.headers.entries()));
+          
+          if (!res.ok && res.status !== 200) {
+            const text = await res.text();
+            console.error('❌ Response error:', text);
+          }
+          
           return res;
+        }).catch(error => {
+          console.error('❌ Fetch error:', error);
+          throw error;
         });
       },
     }),
@@ -50,7 +58,7 @@ export function getTRPCClientOptions() {
     links: [
       httpBatchLink({
         url: `${getBaseUrl()}/api/trpc`,
-        transformer: superjson,
+        transformer: undefined,
         async headers() {
           const token = await getSecureItem('mikel_auth_token');
           console.log('📡 tRPC Batch Request - Token:', token ? 'Present' : 'None');
@@ -63,9 +71,18 @@ export function getTRPCClientOptions() {
         },
         fetch(url, options) {
           console.log('🔵 Making batch request to:', url);
-          return fetch(url, options).then(res => {
+          return fetch(url, options).then(async (res) => {
             console.log('📥 Batch response status:', res.status);
+            
+            if (!res.ok && res.status !== 200) {
+              const text = await res.text();
+              console.error('❌ Batch response error:', text);
+            }
+            
             return res;
+          }).catch(error => {
+            console.error('❌ Batch fetch error:', error);
+            throw error;
           });
         },
       }),
