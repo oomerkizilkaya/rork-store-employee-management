@@ -51,15 +51,15 @@ export default function IndexScreen() {
     return (
       <View style={styles.splashContainer}>
         <Animated.Image
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/lkel41ipvq4ein520pyg6' }}
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/evcwblw8v7bbv6difk1c3' }}
           style={[
-            styles.logo,
+            styles.backgroundImage,
             {
               opacity: fadeAnim,
               transform: [{ scale: scaleAnim }],
             },
           ]}
-          resizeMode="contain"
+          resizeMode="cover"
         />
       </View>
     );
@@ -87,9 +87,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5F5F5',
   },
-  logo: {
-    width: width * 0.7,
-    height: height * 0.3,
+  backgroundImage: {
+    width: width,
+    height: height,
   },
   loadingContainer: {
     flex: 1,
