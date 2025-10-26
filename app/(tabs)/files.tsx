@@ -8,7 +8,6 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
 import { Video, Image as ImageIcon, FileText, ChefHat, Download, X, Play, Plus } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -300,30 +299,16 @@ export default function FilesScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-        <Image 
-          source={{ uri: IMAGES.cup }} 
-          style={styles.headerLogo}
-          resizeMode="contain"
-        />
-        <View style={styles.centerLogoContainer}>
-          <Image 
-            source={{ uri: IMAGES.logo }} 
-            style={styles.centerLogo}
-            resizeMode="contain"
-          />
-        </View>
-        {canShare ? (
+        <Text style={styles.pageTitle}>Dosyalar</Text>
+        {canShare && (
           <TouchableOpacity 
             style={styles.uploadButton}
             onPress={() => setShowUploadModal(true)}
           >
             <Plus size={20} color={colors.white} />
           </TouchableOpacity>
-        ) : (
-          <View style={styles.rightSpacer} />
         )}
         </View>
-        <Text style={styles.pageTitle}>Dosyalar</Text>
       </View>
 
       <ScrollView 
@@ -349,12 +334,6 @@ export default function FilesScreen() {
           );
         })}
       </ScrollView>
-
-      <Image 
-        source={{ uri: IMAGES.backgroundLogo }} 
-        style={styles.backgroundLogo}
-        resizeMode="contain"
-      />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {selectedCategory === 'videos' && (
@@ -612,39 +591,12 @@ const styles = StyleSheet.create({
   headerBackground: {
     backgroundColor: colors.white,
   },
-  backgroundLogo: {
-    position: 'absolute' as const,
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-    top: '40%',
-    opacity: 0.08,
-    zIndex: 0,
-    pointerEvents: 'none' as const,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 20,
-    gap: 12,
-  },
-  headerLogo: {
-    width: 32,
-    height: 32,
-  },
-  centerLogoContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centerLogo: {
-    width: 80,
-    height: 40,
-  },
-  rightSpacer: {
-    width: 44,
   },
   uploadButton: {
     backgroundColor: colors.primary,
@@ -660,11 +612,10 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   pageTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '700' as const,
     color: colors.gray[900],
-    textAlign: 'center',
-    paddingBottom: 12,
+    flex: 1,
   },
   categoriesScroll: {
     maxHeight: 56,

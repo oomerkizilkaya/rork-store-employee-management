@@ -8,7 +8,6 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
 import { Search, Download, User as UserIcon, Phone, Mail, MapPin, UserX, X } from 'lucide-react-native';
 import { User, UserPosition } from '@/types';
 import { canSeeAllStores, canSeePhoneNumbers, canApproveEmployees } from '@/utils/permissions';
@@ -346,11 +345,6 @@ export default function EmployeesScreen() {
       <View style={styles.headerWrapper}>
         <View style={[styles.headerBackground, { height: insets.top }]} />
         <View style={styles.header}>
-          <Animated.Image 
-            source={{ uri: IMAGES.cup }} 
-            style={[styles.cupLogo, { transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}
-            resizeMode="contain"
-          />
           <Text style={styles.pageTitle}>Çalışanlar</Text>
           <TouchableOpacity 
             style={styles.downloadButton}
@@ -401,12 +395,6 @@ export default function EmployeesScreen() {
           }
         </Text>
       </View>
-
-      <Image 
-        source={{ uri: IMAGES.backgroundLogo }} 
-        style={styles.backgroundLogo}
-        resizeMode="contain"
-      />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {activeTab === 'pending' ? (
@@ -608,16 +596,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  backgroundLogo: {
-    position: 'absolute' as const,
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-    top: '40%',
-    opacity: 0.08,
-    zIndex: 0,
-    pointerEvents: 'none' as const,
-  },
   headerWrapper: {
     backgroundColor: colors.white,
     borderBottomWidth: 1,
@@ -632,20 +610,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 20,
-    gap: 12,
   },
-  cupLogo: {
-    width: 32,
-    height: 32,
-  },
-
-
   pageTitle: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700' as const,
     color: colors.gray[900],
-    textAlign: 'center',
   },
   downloadButton: {
     backgroundColor: colors.success,

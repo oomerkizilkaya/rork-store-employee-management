@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal,
 import { Clock, Check, X, AlertCircle, Store as StoreIcon } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
 import { sendCheckInNotification, sendCheckOutNotification } from '@/utils/notifications';
 import { AttendanceRecord } from '@/types';
 import { canViewRegionalData, canCreateAttendance } from '@/utils/permissions';
@@ -133,12 +132,6 @@ export default function AttendanceScreen() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: IMAGES.backgroundLogo }} 
-        style={styles.backgroundLogo}
-        resizeMode="contain"
-      />
-
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {todayRecord && canCreate && (
           <View style={styles.todayCard}>
@@ -327,16 +320,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  backgroundLogo: {
-    position: 'absolute' as const,
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-    top: '40%',
-    opacity: 0.08,
-    zIndex: 0,
-    pointerEvents: 'none' as const,
   },
   scrollView: {
     flex: 1,
