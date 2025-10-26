@@ -237,8 +237,6 @@ export default function ShiftsScreen() {
         </View>
       )}
 
-      <View style={styles.topSpacer} />
-
       <View style={styles.weekNavigator}>
         <TouchableOpacity style={styles.navButton} onPress={handlePreviousWeek}>
           <ChevronLeft size={24} color={colors.primary} />
@@ -581,9 +579,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  topSpacer: {
-    height: 16,
-  },
+
   weekNavigator: {
     flexDirection: 'row',
     alignItems: 'center',

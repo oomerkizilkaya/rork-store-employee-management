@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Modal, TextInput, Alert, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import colors from '@/constants/colors';
 import { IMAGES } from '@/constants/images';
@@ -12,7 +11,6 @@ import { canApproveOvertime, canCreateOvertime, canViewRegionalData } from '@/ut
 
 export default function OvertimeScreen() {
   const { user } = useAuth();
-  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [newRequestDate, setNewRequestDate] = useState('');
   const [newRequestHours, setNewRequestHours] = useState('');
@@ -168,40 +166,23 @@ export default function OvertimeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerWrapper}>
-        <View style={[styles.headerBackground, { height: insets.top }]} />
-        <View style={styles.header}>
-        <Image 
-          source={{ uri: IMAGES.cup }} 
-          style={styles.headerLogo}
-          resizeMode="contain"
-        />
-        <View style={styles.centerLogoContainer}>
-          <Image 
-            source={{ uri: IMAGES.logo }} 
-            style={styles.centerLogo}
-            resizeMode="contain"
-          />
-        </View>
-        {canCreate ? (
-          <TouchableOpacity 
-            style={styles.createButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Plus size={20} color={colors.white} />
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.rightSpacer} />
-        )}
-        </View>
-        <Text style={styles.pageTitle}>Ekstra Mesai</Text>
-      </View>
-
       <Image 
         source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}
         resizeMode="contain"
       />
+
+      {canCreate && (
+        <View style={styles.createButtonContainer}>
+          <TouchableOpacity 
+            style={styles.createButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Plus size={20} color={colors.white} />
+            <Text style={styles.createButtonText}>Yeni</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {filteredRequests.length === 0 && (
@@ -379,14 +360,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  headerWrapper: {
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray[100],
-  },
-  headerBackground: {
-    backgroundColor: colors.white,
-  },
+
   backgroundLogo: {
     position: 'absolute' as const,
     width: 300,
@@ -397,55 +371,38 @@ const styles = StyleSheet.create({
     zIndex: 0,
     pointerEvents: 'none' as const,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 12,
-  },
-  headerLogo: {
-    width: 32,
-    height: 32,
-  },
-  centerLogoContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centerLogo: {
-    width: 80,
-    height: 40,
-  },
-  rightSpacer: {
-    width: 44,
-  },
-  pageTitle: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: colors.gray[900],
-    textAlign: 'center',
-    paddingBottom: 12,
+
+  createButtonContainer: {
+    position: 'absolute' as const,
+    bottom: 100,
+    right: 20,
+    zIndex: 10,
   },
   createButton: {
+    flexDirection: 'row',
     backgroundColor: colors.primary,
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 16,
     alignItems: 'center',
+    gap: 8,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  createButtonText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600' as const,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 40,
   },
   card: {
