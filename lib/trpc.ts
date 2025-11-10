@@ -7,7 +7,6 @@ export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    console.log('🌐 API Base URL:', process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
     return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   }
 
@@ -17,24 +16,7 @@ const getBaseUrl = () => {
 };
 
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-  console.log('📡 tRPC Request:', typeof input === 'string' ? input : input.toString());
-  console.log('📡 Request method:', init?.method);
-  console.log('📡 Request headers:', init?.headers);
-  console.log('📡 Request body:', init?.body);
-  
-  const response = await fetch(input, init);
-  console.log('📡 Response status:', response.status, response.statusText);
-  console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
-  
-  const clonedResponse = response.clone();
-  try {
-    const text = await clonedResponse.text();
-    console.log('📡 Response body:', text.substring(0, 500));
-  } catch (e) {
-    console.log('📡 Could not read response body');
-  }
-  
-  return response;
+  return fetch(input, init);
 };
 
 export const trpcClient = createTRPCClient<AppRouter>({
