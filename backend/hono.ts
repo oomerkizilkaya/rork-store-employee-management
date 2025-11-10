@@ -19,8 +19,15 @@ app.use(
   trpcServer({
     router: appRouter,
     createContext,
+    responseMeta() {
+      return {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+    },
     onError({ error, path }) {
-      
+      console.error(`❌ tRPC Error on ${path}:`, error);
     },
   })
 );
