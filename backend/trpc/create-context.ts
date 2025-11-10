@@ -23,7 +23,11 @@ export const createContext = async (opts: FetchCreateContextFnOptions) => {
 
 export type Context = Awaited<ReturnType<typeof createContext>>;
 
-const t = initTRPC.context<Context>().create();
+const t = initTRPC.context<Context>().create({
+  errorFormatter({ shape }) {
+    return shape;
+  },
+});
 
 export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;

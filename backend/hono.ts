@@ -14,6 +14,12 @@ app.use("*", cors({
   credentials: true,
 }));
 
+app.use("*", async (c, next) => {
+  console.log(`🚀 Incoming request: ${c.req.method} ${c.req.url}`);
+  await next();
+  console.log(`✅ Response status: ${c.res.status}`);
+});
+
 app.use(
   "/api/trpc/*",
   trpcServer({
@@ -21,6 +27,13 @@ app.use(
     createContext,
     onError({ error, path }) {
       console.error(`❌ tRPC Error on ${path}:`, error);
+    },
+    responseMeta() {
+      return {
+        headers: {
+          'content-type': 'application/json',
+        },
+      };
     },
   })
 );

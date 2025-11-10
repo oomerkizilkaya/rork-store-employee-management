@@ -16,7 +16,35 @@ const getBaseUrl = () => {
 };
 
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-  return fetch(input, init);
+  console.log('🚀 tRPC Request:', {
+    url: input.toString(),
+    method: init?.method,
+    headers: init?.headers,
+  });
+
+  const response = await fetch(input, {
+    ...init,
+    headers: {
+      ...init?.headers,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  console.log('📡 tRPC Response:', {
+    url: input.toString(),
+    status: response.status,
+    contentType: response.headers.get('content-type'),
+  });
+
+  const clonedResponse = response.clone();
+  try {
+    const text = await clonedResponse.text();
+    console.log('📝 Response body (first 200 chars):', text.substring(0, 200));
+  } catch (e) {
+    console.error('❌ Could not read response body:', e);
+  }
+
+  return response;
 };
 
 export const trpcClient = createTRPCClient<AppRouter>({
@@ -33,6 +61,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
         }
         return {};
       },
+      transformer: undefined,
     }),
   ],
 });
@@ -52,6 +81,7 @@ export function getTRPCClientOptions() {
           }
           return {};
         },
+        transformer: undefined,
       }),
     ],
   };
