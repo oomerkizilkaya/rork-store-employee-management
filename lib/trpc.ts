@@ -135,6 +135,33 @@ const resolveBaseUrl = (): string => {
 
 const BASE_URL = resolveBaseUrl();
 
+const buildTrpcUrl = (baseUrl: string): string => {
+  try {
+    const parsed = new URL(baseUrl);
+    const pathname = parsed.pathname.replace(/\/+$/, "");
+
+    if (pathname.endsWith("/api/trpc")) {
+      return `${parsed.origin}${pathname}`;
+    }
+
+    if (pathname.endsWith("/api")) {
+      return `${parsed.origin}${pathname}/trpc`;
+    }
+
+    if (pathname.length === 0) {
+      return `${parsed.origin}/api/trpc`;
+    }
+
+    return `${parsed.origin}${pathname}/api/trpc`;
+  } catch (error) {
+    console.error("❌ Failed to build tRPC URL from base", baseUrl, error);
+    return `${baseUrl.replace(/\/+$/, "")}/api/trpc`;
+  }
+};
+
+const TRPC_URL = buildTrpcUrl(BASE_URL);
+console.log("🔗 tRPC Endpoint URL:", TRPC_URL);
+
 const toRequestUrl = (input: RequestInfo | URL): string => {
   if (typeof input === "string") {
     return input;
@@ -185,7 +212,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
 export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpLink({
-      url: `${BASE_URL}/api/trpc`,
+      url: TRPC_URL,
       fetch: customFetch,
       async headers() {
         const token = await getSecureItem("mikel_auth_token");
@@ -205,7 +232,7 @@ export function getTRPCClientOptions() {
   return {
     links: [
       httpLinkReact({
-        url: `${BASE_URL}/api/trpc`,
+        url: TRPC_URL,
         fetch: customFetch,
         async headers() {
           const token = await getSecureItem("mikel_auth_token");
