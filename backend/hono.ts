@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
-import { trpcServer } from "@hono/trpc-server";
 
 const app = new Hono();
 
@@ -20,9 +20,10 @@ app.use("*", async (c, next) => {
   console.log(`✅ Response status: ${c.res.status}`);
 });
 
-app.use(
-  "/api/trpc/*",
-  trpcServer({
+app.all("/api/trpc/*", async (c) => {
+  return fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req: c.req.raw,
     router: appRouter,
     createContext,
     onError({ error, path }) {
@@ -35,8 +36,8 @@ app.use(
         },
       };
     },
-  })
-);
+  });
+});
 
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
