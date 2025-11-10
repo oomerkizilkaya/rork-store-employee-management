@@ -32,32 +32,14 @@ const getExpoGoConfig = (): ExpoGoConfigShape | undefined => {
   return (Constants as unknown as { expoGoConfig?: ExpoGoConfigShape }).expoGoConfig;
 };
 
-const collectPotentialHosts = (): string[] => {
+const collectDevHosts = (): string[] => {
   const hosts: string[] = [];
   const expoConfig = getExpoConfig();
-  if (expoConfig?.hostUri) {
-    hosts.push(expoConfig.hostUri);
-  }
   if (expoConfig?.debuggerHost) {
     hosts.push(expoConfig.debuggerHost);
   }
-  const extra = expoConfig?.extra;
-  if (extra) {
-    const apiBaseUrl = typeof extra.apiBaseUrl === "string" ? extra.apiBaseUrl : undefined;
-    if (apiBaseUrl) {
-      hosts.push(apiBaseUrl);
-    }
-    const rorkExtra = extra.rork as Record<string, unknown> | undefined;
-    if (rorkExtra) {
-      const rorkApi = typeof rorkExtra.apiBaseUrl === "string" ? rorkExtra.apiBaseUrl : undefined;
-      if (rorkApi) {
-        hosts.push(rorkApi);
-      }
-      const backendUrl = typeof rorkExtra.backendUrl === "string" ? rorkExtra.backendUrl : undefined;
-      if (backendUrl) {
-        hosts.push(backendUrl);
-      }
-    }
+  if (expoConfig?.hostUri) {
+    hosts.push(expoConfig.hostUri);
   }
   const expoGoConfig = getExpoGoConfig();
   if (expoGoConfig?.debuggerHost) {
@@ -98,7 +80,7 @@ const normalizeHostCandidate = (candidate: string): string | null => {
 };
 
 const resolveDevHost = (): string | null => {
-  const potentialHosts = collectPotentialHosts();
+  const potentialHosts = collectDevHosts();
   for (const candidate of potentialHosts) {
     const normalized = normalizeHostCandidate(candidate);
     if (normalized) {
@@ -109,17 +91,45 @@ const resolveDevHost = (): string | null => {
 };
 
 const resolveBaseUrl = (): string => {
+  const normalizedCandidates: string[] = [];
+  const seen = new Set<string>();
+
+  const pushCandidate = (value: unknown) => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      return;
+    }
+    const normalized = normalizeHostCandidate(value);
+    if (normalized && !seen.has(normalized)) {
+      normalizedCandidates.push(normalized);
+      seen.add(normalized);
+    }
+  };
+
   const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL ?? process.env.EXPO_PUBLIC_API_BASE_URL;
-  if (envUrl && envUrl.trim().length > 0) {
-    return sanitizeUrl(envUrl.trim());
+  pushCandidate(envUrl);
+
+  const expoConfig = getExpoConfig();
+  const extra = expoConfig?.extra as Record<string, unknown> | undefined;
+  if (extra) {
+    const rorkExtra = extra.rork as Record<string, unknown> | undefined;
+    if (rorkExtra) {
+      pushCandidate(rorkExtra.backendUrl);
+      pushCandidate(rorkExtra.apiBaseUrl);
+    }
+    pushCandidate(extra.apiBaseUrl);
   }
+
   if (Platform.OS === "web" && typeof window !== "undefined" && window.location?.origin) {
-    return sanitizeUrl(window.location.origin);
+    pushCandidate(window.location.origin);
   }
-  const devHost = resolveDevHost();
-  if (devHost) {
-    return devHost;
+
+  pushCandidate(resolveDevHost());
+
+  if (normalizedCandidates.length > 0) {
+    console.log("🔗 tRPC Base URL resolved:", normalizedCandidates[0]);
+    return normalizedCandidates[0];
   }
+
   throw new Error("No base url found. Set EXPO_PUBLIC_RORK_API_BASE_URL or configure an API base URL in Expo config.");
 };
 
