@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "MikelStaff",
-    "slug": "store-employee-management",
+    "slug": "mikelstaff",
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rork.store-employee-management",
+      "bundleIdentifier": "app.rork.mikelstaff",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -35,7 +35,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.store_employee_management",
+      "package": "app.rork.mikelstaff",
       "permissions": [
         "RECORD_AUDIO",
         "CAMERA",
