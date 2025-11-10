@@ -1,5 +1,5 @@
 import createContextHook from '@nkzw/create-context-hook';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { User } from '@/types';
 import { setSecureItem, getSecureItem, deleteSecureItem, setSecureObject } from '@/utils/secureStorage';
 import { trpcClient } from '@/lib/trpc';
@@ -19,28 +19,49 @@ type AuthContextValue = {
 export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const setUserSafe = useCallback((nextUser: User | null) => {
+    if (isMountedRef.current) {
+      setUser(nextUser);
+    }
+  }, []);
+
+  const setLoadingSafe = useCallback((nextLoading: boolean) => {
+    if (isMountedRef.current) {
+      setLoading(nextLoading);
+    }
+  }, []);
 
   const loadUser = useCallback(async () => {
     try {
       const token = await getSecureItem(AUTH_TOKEN_KEY);
       if (!token) {
-        setLoading(false);
+        setLoadingSafe(false);
         return;
       }
       
       try {
         const userData = await trpcClient.auth.me.query();
-        setUser(userData as User);
+        setUserSafe(userData as User);
       } catch (error) {
         await deleteSecureItem(AUTH_TOKEN_KEY);
         await deleteSecureItem(USER_DATA_KEY);
+        setUserSafe(null);
       }
     } catch (error) {
       console.error('❌ Kullanıcı yükleme hatası:', error);
     } finally {
-      setLoading(false);
+      setLoadingSafe(false);
     }
-  }, []);
+  }, [setLoadingSafe, setUserSafe]);
 
   useEffect(() => {
     loadUser();
@@ -58,7 +79,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
       
-      setUser(response.user as User);
+      setUserSafe(response.user as User);
       console.log('✅ User logged in successfully');
     } catch (error) {
       console.error('❌ Login hatası:', error);
@@ -67,7 +88,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       }
       throw error;
     }
-  }, []);
+  }, [setUserSafe]);
 
   const register = useCallback(async (userData: Omit<User, 'id'> & { password: string }) => {
     try {
@@ -99,11 +120,11 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       
       await deleteSecureItem(AUTH_TOKEN_KEY);
       await deleteSecureItem(USER_DATA_KEY);
-      setUser(null);
+      setUserSafe(null);
     } catch (error) {
       console.error('❌ Çıkış hatası:', error);
     }
-  }, []);
+  }, [setUserSafe]);
 
   const updateUser = useCallback(async (userData: Partial<User>) => {
     try {
@@ -111,12 +132,12 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       
       const updatedUser = { ...user, ...userData };
       await setSecureObject(USER_DATA_KEY, updatedUser);
-      setUser(updatedUser);
+      setUserSafe(updatedUser);
     } catch (error) {
       console.error('❌ Kullanıcı güncelleme hatası:', error);
       throw error;
     }
-  }, [user]);
+  }, [user, setUserSafe]);
 
   return useMemo(() => ({
     user,
