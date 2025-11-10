@@ -14,8 +14,8 @@ import {
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/contexts/AuthContext';
-import colors from '@/constants/colors';
+import { useAuth } from '../../contexts/AuthContext';
+import colors from '../../constants/colors';
 import { LogIn, Eye, EyeOff } from 'lucide-react-native';
 
 export default function LoginScreen() {
@@ -59,23 +59,29 @@ export default function LoginScreen() {
   };
 
   return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="light" />
-        <Image
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/p3xx7q0899ab7jo65ozfv' }}
-          style={styles.backgroundLogo}
-          resizeMode="contain"
-        />
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="light" />
+      <Image
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/p3xx7q0899ab7jo65ozfv' }}
+        style={styles.backgroundLogo}
+        resizeMode="contain"
+      />
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardView}
-        >
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Hoş Geldiniz</Text>
-              <Text style={styles.subtitle}>Devam etmek için giriş yapın</Text>
-            </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Image
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/1isknxxt1pihz4deto1x6' }}
+              style={styles.logo}
+              resizeMode="contain"
+              testID="login-logo"
+            />
+            <Text style={styles.title}>Hoş Geldiniz</Text>
+            <Text style={styles.subtitle}>Devam etmek için giriş yapın</Text>
+          </View>
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
@@ -177,6 +183,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
     marginTop: 60,
+    gap: 16,
+  },
+
+  logo: {
+    width: 120,
+    height: 120,
   },
 
   title: {
