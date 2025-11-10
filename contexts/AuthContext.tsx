@@ -22,21 +22,16 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const loadUser = useCallback(async () => {
     try {
-      console.log('🔄 Kullanıcı yükleniyor...');
-      
       const token = await getSecureItem(AUTH_TOKEN_KEY);
       if (!token) {
-        console.log('❌ Token bulunamadı');
         setLoading(false);
         return;
       }
       
       try {
         const userData = await trpcClient.auth.me.query();
-        console.log('✅ Kullanıcı yüklendi:', userData.email);
         setUser(userData as User);
       } catch (error) {
-        console.log('❌ Token geçersiz, temizleniyor');
         await deleteSecureItem(AUTH_TOKEN_KEY);
         await deleteSecureItem(USER_DATA_KEY);
       }
@@ -53,33 +48,22 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      console.log('🔵 Giriş işlemi başladı:', email);
-      
       const response = await trpcClient.auth.login.mutate({
         email: email.trim(),
         password: password.trim(),
       });
 
-      console.log('✅ Giriş başarılı, token kaydediliyor');
-      console.log('🟢 Response:', JSON.stringify(response, null, 2));
-      
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
       
       setUser(response.user as User);
-      console.log('✅ Kullanıcı bilgileri güncellendi');
     } catch (error) {
       console.error('❌ Login hatası:', error);
-      if (error && typeof error === 'object') {
-        console.error('❌ Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-      }
       throw error;
     }
   }, []);
 
   const register = useCallback(async (userData: Omit<User, 'id'> & { password: string }) => {
-    console.log('🔵 Kayıt işlemi başladı:', userData.email);
-    
     try {
       await trpcClient.auth.register.mutate({
         firstName: userData.firstName,
@@ -93,8 +77,6 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
         startDate: userData.startDate,
         birthDate: userData.birthDate,
       });
-
-      console.log('✅ Kayıt işlemi başarıyla tamamlandı!');
     } catch (error) {
       console.error('❌ Kayıt hatası:', error);
       throw error;
@@ -103,8 +85,6 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const logout = useCallback(async () => {
     try {
-      console.log('🚪 Çıkış yapılıyor...');
-      
       try {
         await trpcClient.auth.logout.mutate();
       } catch (error) {
@@ -114,7 +94,6 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       await deleteSecureItem(AUTH_TOKEN_KEY);
       await deleteSecureItem(USER_DATA_KEY);
       setUser(null);
-      console.log('✅ Çıkış başarılı');
     } catch (error) {
       console.error('❌ Çıkış hatası:', error);
     }

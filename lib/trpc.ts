@@ -23,12 +23,6 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
   const response = await fetch(input, init);
   console.log('📡 Response status:', response.status, response.statusText);
   
-  if (!response.ok) {
-    const clonedResponse = response.clone();
-    const text = await clonedResponse.text();
-    console.log('📡 Error response body:', text);
-  }
-  
   return response;
 };
 

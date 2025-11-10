@@ -30,10 +30,6 @@ class Database {
     
     this.users.set(adminUser.id, adminUser);
     this.emailIndex.set(adminUser.email.toLowerCase(), adminUser.id);
-    
-    console.log('✅ Database seeded with admin user');
-    console.log('📧 Email: admin@tr.mikelcoffee.com');
-    console.log('🔑 Password: Admin123');
   }
 
   async createUser(user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> {

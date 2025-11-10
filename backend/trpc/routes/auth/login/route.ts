@@ -14,12 +14,9 @@ export default publicProcedure
   .mutation(async ({ input }) => {
     const { email, password } = input;
 
-    console.log('🔵 Login attempt:', email);
-
     const user = await db.getUserByEmail(email);
 
     if (!user) {
-      console.log('❌ User not found');
       throw new TRPCError({
         code: 'UNAUTHORIZED',
         message: 'Email veya şifre hatalı',
@@ -29,7 +26,6 @@ export default publicProcedure
     const passwordValid = await verifyPassword(password, user.passwordHash);
 
     if (!passwordValid) {
-      console.log('❌ Invalid password');
       throw new TRPCError({
         code: 'UNAUTHORIZED',
         message: 'Email veya şifre hatalı',
@@ -37,7 +33,6 @@ export default publicProcedure
     }
 
     if (!user.isApproved) {
-      console.log('❌ User not approved');
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: 'Hesabınız henüz onaylanmadı. Lütfen yöneticinizle iletişime geçin.',
@@ -47,8 +42,6 @@ export default publicProcedure
     const token = generateJWT(user.id);
 
     const { passwordHash, ...userWithoutPassword } = user;
-
-    console.log('✅ Login successful:', user.email);
 
     return {
       token,
