@@ -12,7 +12,6 @@ class Database {
 
   private seedDefaultData() {
     const passwordHash = bcrypt.hashSync('Admin123', 10);
-    console.log('🔑 Generated password hash for Admin123');
     
     const adminUser: User = {
       id: '1',
@@ -31,9 +30,6 @@ class Database {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    
-    console.log('✅ Admin user seeded:', adminUser.email);
-    console.log('🔑 Login with: admin@tr.mikelcoffee.com / Admin123');
     this.users.set(adminUser.id, adminUser);
     this.emailIndex.set(adminUser.email.toLowerCase(), adminUser.id);
   }
