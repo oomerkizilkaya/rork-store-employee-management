@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image, Modal, Pressable, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { VideoView, useVideoPlayer } from 'expo-video';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAuth } from '@/contexts/AuthContext';
-import colors from '@/constants/colors';
-import { IMAGES } from '@/constants/images';
+import { useAuth } from '../../contexts/AuthContext';
+import colors from '../../constants/colors';
+import { IMAGES } from '../../constants/images';
 import { Plus, Search, Edit, Trash2, Send, X, Play } from 'lucide-react-native';
-import { Announcement } from '@/types';
-import { sendAnnouncementNotification } from '@/utils/notifications';
+import { Announcement } from '../../types';
+import { sendAnnouncementNotification } from '../../utils/notifications';
 
 const { width, height } = Dimensions.get('window');
 
@@ -29,6 +30,7 @@ function VideoPlayerComponent({ uri }: { uri: string }) {
 }
 
 export default function AnnouncementsScreen() {
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMedia, setSelectedMedia] = useState<{ uri: string; type: 'image' | 'video' } | null>(null);
@@ -38,12 +40,13 @@ export default function AnnouncementsScreen() {
   const [newMediaFiles, setNewMediaFiles] = useState<{ uri: string; type: 'image' | 'video' }[]>([]);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const isMountedRef = useRef<boolean>(true);
 
   const canManage = user?.position === 'egitmen' || 
     user?.position === 'egitim_muduru' || 
     user?.position === 'insan_kaynaklari';
 
-  const mockAnnouncements: Announcement[] = [
+  const mockAnnouncements = useMemo<Announcement[]>(() => [
     {
       id: '1',
       title: 'Haftalık Toplantı',
@@ -74,15 +77,21 @@ export default function AnnouncementsScreen() {
       createdByName: 'Ahmet Yılmaz',
       createdAt: new Date(Date.now() - 172800000).toISOString(),
     },
-  ];
+  ], []);
 
   useEffect(() => {
-    loadAnnouncements();
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
-  const loadAnnouncements = async () => {
+  const loadAnnouncements = useCallback(async () => {
     try {
       const stored = await AsyncStorage.getItem('@mikel_announcements');
+      if (!isMountedRef.current) {
+        return;
+      }
       if (stored) {
         const parsedAnnouncements = JSON.parse(stored);
         console.log('✅ Duyurular yüklendi:', parsedAnnouncements.length);
@@ -92,20 +101,33 @@ export default function AnnouncementsScreen() {
         setAnnouncements(mockAnnouncements);
       }
     } catch (error) {
+      if (!isMountedRef.current) {
+        return;
+      }
       console.log('❌ Duyurular yüklenirken hata:', error);
       setAnnouncements(mockAnnouncements);
     }
-  };
+  }, [mockAnnouncements]);
 
-  const saveAnnouncements = async (newAnnouncements: Announcement[]) => {
+  useEffect(() => {
+    loadAnnouncements();
+  }, [loadAnnouncements]);
+
+  const saveAnnouncements = useCallback(async (newAnnouncements: Announcement[]) => {
     try {
       await AsyncStorage.setItem('@mikel_announcements', JSON.stringify(newAnnouncements));
+      if (!isMountedRef.current) {
+        return;
+      }
       console.log('💾 Duyurular kaydedildi:', newAnnouncements.length);
       setAnnouncements(newAnnouncements);
     } catch (error) {
+      if (!isMountedRef.current) {
+        return;
+      }
       console.log('❌ Duyurular kaydedilirken hata:', error);
     }
-  };
+  }, []);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -236,7 +258,7 @@ export default function AnnouncementsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <Image 
         source={{ uri: IMAGES.backgroundLogo }} 
         style={styles.backgroundLogo}

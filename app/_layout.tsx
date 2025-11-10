@@ -1,13 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { trpc, trpcClient } from "@/lib/trpc";
-
-SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient();
+import React, { useEffect, useState } from "react";
+import { AuthProvider } from "../contexts/AuthContext";
+import { trpc, trpcClient } from "../lib/trpc";
 
 function RootLayoutNav() {
   return (
@@ -21,19 +17,42 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const [queryClient] = useState<QueryClient>(() => new QueryClient());
+
   useEffect(() => {
-    setTimeout(() => {
-      SplashScreen.hideAsync();
-    }, 2000);
+    let isMounted = true;
+
+    const prepareSplash = async () => {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+      } catch (error) {
+        console.error("❌ Splash screen handling error:", error);
+      } finally {
+        if (isMounted) {
+          try {
+            await SplashScreen.hideAsync();
+          } catch (hideError) {
+            console.error("❌ Splash screen hide error:", hideError);
+          }
+        }
+      }
+    };
+
+    prepareSplash();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <AuthProvider>
           <RootLayoutNav />
         </AuthProvider>
-      </QueryClientProvider>
-    </trpc.Provider>
+      </trpc.Provider>
+    </QueryClientProvider>
   );
 }

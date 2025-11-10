@@ -1,5 +1,5 @@
-import { createTRPCReact, httpLink as httpLinkReact } from "@trpc/react-query";
-import { createTRPCClient, httpLink } from "@trpc/client";
+import { createTRPCReact } from "@trpc/react-query";
+import { httpLink } from "@trpc/client";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import type { AppRouter } from "../backend/trpc/app-router";
@@ -209,42 +209,29 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
   return response;
 };
 
-export const trpcClient = createTRPCClient<AppRouter>({
-  links: [
-    httpLink({
-      url: TRPC_URL,
-      fetch: customFetch,
-      async headers() {
-        const token = await getSecureItem("mikel_auth_token");
-        if (token) {
-          return {
-            authorization: `Bearer ${token}`,
-          };
-        }
-        return {};
-      },
-      transformer: undefined,
-    }),
-  ],
+const createLinks = () => [
+  httpLink({
+    url: TRPC_URL,
+    fetch: customFetch,
+    async headers() {
+      const token = await getSecureItem("mikel_auth_token");
+      if (token) {
+        return {
+          authorization: `Bearer ${token}`,
+        };
+      }
+      return {};
+    },
+    transformer: undefined,
+  }),
+];
+
+export const trpcClient = trpc.createClient({
+  links: createLinks(),
 });
 
 export function getTRPCClientOptions() {
   return {
-    links: [
-      httpLinkReact({
-        url: TRPC_URL,
-        fetch: customFetch,
-        async headers() {
-          const token = await getSecureItem("mikel_auth_token");
-          if (token) {
-            return {
-              authorization: `Bearer ${token}`,
-            };
-          }
-          return {};
-        },
-        transformer: undefined,
-      }),
-    ],
+    links: createLinks(),
   };
 }
