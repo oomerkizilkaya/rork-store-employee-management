@@ -18,18 +18,11 @@ app.use(
   "/api/trpc/*",
   trpcServer({
     router: appRouter,
-    createContext: async (opts, c) => {
+    createContext: async (opts) => {
       return createContext(opts);
     },
     onError({ error, path }) {
       console.error(`❌ tRPC Error on ${path}:`, error);
-    },
-    responseMeta() {
-      return {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
     },
   })
 );
