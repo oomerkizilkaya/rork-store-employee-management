@@ -21,6 +21,8 @@ app.use(
     createContext,
     onError({ error, path }) {
       console.error(`❌ tRPC Error on ${path}:`, error);
+      console.error('❌ Error code:', error.code);
+      console.error('❌ Error message:', error.message);
     },
   })
 );

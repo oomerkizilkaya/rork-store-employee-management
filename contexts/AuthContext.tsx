@@ -48,17 +48,23 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const login = useCallback(async (email: string, password: string) => {
     try {
+      console.log('🚀 Starting login for:', email);
       const response = await trpcClient.auth.login.mutate({
         email: email.trim(),
         password: password.trim(),
       });
 
+      console.log('✅ Login response received');
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
       
       setUser(response.user as User);
+      console.log('✅ User logged in successfully');
     } catch (error) {
       console.error('❌ Login hatası:', error);
+      if (error && typeof error === 'object') {
+        console.error('❌ Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      }
       throw error;
     }
   }, []);

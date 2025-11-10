@@ -12,9 +12,11 @@ export default publicProcedure
     })
   )
   .mutation(async ({ input }) => {
+    console.log('🔐 Login attempt for:', input.email);
     const { email, password } = input;
 
     const user = await db.getUserByEmail(email);
+    console.log('👤 User found:', user ? 'YES' : 'NO');
 
     if (!user) {
       throw new TRPCError({
@@ -24,6 +26,7 @@ export default publicProcedure
     }
 
     const passwordValid = await verifyPassword(password, user.passwordHash);
+    console.log('🔒 Password valid:', passwordValid);
 
     if (!passwordValid) {
       throw new TRPCError({
@@ -40,11 +43,15 @@ export default publicProcedure
     }
 
     const token = generateJWT(user.id);
+    console.log('✅ JWT generated successfully');
 
     const { passwordHash, ...userWithoutPassword } = user;
-
-    return {
+    
+    const result = {
       token,
       user: userWithoutPassword,
     };
+    
+    console.log('✅ Login successful, returning response');
+    return result;
   });

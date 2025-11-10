@@ -1,4 +1,5 @@
 import { User, AuthToken } from './schema';
+import bcrypt from 'bcryptjs';
 
 class Database {
   private users: Map<string, User> = new Map();
@@ -10,13 +11,16 @@ class Database {
   }
 
   private seedDefaultData() {
+    const passwordHash = bcrypt.hashSync('Admin123', 10);
+    console.log('🔑 Generated password hash for Admin123');
+    
     const adminUser: User = {
       id: '1',
       employeeId: 'MKL0001',
       firstName: 'Admin',
       lastName: 'Admin',
       email: 'admin@tr.mikelcoffee.com',
-      passwordHash: '$2a$10$X7rYz8Y9xLM0eJd1vD.f6OGmZJqVzKJzq0YJ9eQz1bKz0QWzX8z1m',
+      passwordHash,
       phone: '05551234567',
       store: 'Merkez',
       region: 'İstanbul',
@@ -28,6 +32,8 @@ class Database {
       updatedAt: new Date().toISOString(),
     };
     
+    console.log('✅ Admin user seeded:', adminUser.email);
+    console.log('🔑 Login with: admin@tr.mikelcoffee.com / Admin123');
     this.users.set(adminUser.id, adminUser);
     this.emailIndex.set(adminUser.email.toLowerCase(), adminUser.id);
   }
