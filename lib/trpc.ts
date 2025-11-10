@@ -19,19 +19,15 @@ const getBaseUrl = () => {
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   console.log('📡 tRPC Request:', typeof input === 'string' ? input : input.toString());
   console.log('📡 Request method:', init?.method);
-  console.log('📡 Request headers:', init?.headers);
-  if (init?.body) {
-    console.log('📡 Request body:', init.body);
-  }
   
   const response = await fetch(input, init);
   console.log('📡 Response status:', response.status, response.statusText);
-  console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
   
-  const clonedResponse = response.clone();
-  const text = await clonedResponse.text();
-  console.log('📡 Response body (raw):', text);
-  console.log('📡 Response body length:', text.length);
+  if (!response.ok) {
+    const clonedResponse = response.clone();
+    const text = await clonedResponse.text();
+    console.log('📡 Error response body:', text);
+  }
   
   return response;
 };
