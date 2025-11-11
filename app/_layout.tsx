@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
+import { AppErrorBoundary } from "../components/AppErrorBoundary";
 import { AuthProvider } from "../contexts/AuthContext";
 import { trpc, trpcClient } from "../lib/trpc";
 
@@ -50,7 +51,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <AuthProvider>
-          <RootLayoutNav />
+          <AppErrorBoundary>
+            <RootLayoutNav />
+          </AppErrorBoundary>
         </AuthProvider>
       </trpc.Provider>
     </QueryClientProvider>

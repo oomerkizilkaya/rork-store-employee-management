@@ -16,10 +16,10 @@ type AuthContextValue = {
   updateUser: (userData: Partial<User>) => Promise<void>;
 };
 
-export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue => {
+function useAuthProvider(): AuthContextValue {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const isMountedRef = useRef(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const isMountedRef = useRef<boolean>(true);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -47,7 +47,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
         setLoadingSafe(false);
         return;
       }
-      
+
       try {
         const userData = await trpcClient.auth.me.query();
         setUserSafe(userData as User);
@@ -78,7 +78,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       console.log('✅ Login response received');
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
-      
+
       setUserSafe(response.user as User);
       console.log('✅ User logged in successfully');
     } catch (error) {
@@ -117,7 +117,7 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
       } catch (error) {
         console.log('Backend logout error (ignored):', error);
       }
-      
+
       await deleteSecureItem(AUTH_TOKEN_KEY);
       await deleteSecureItem(USER_DATA_KEY);
       setUserSafe(null);
@@ -128,8 +128,10 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
 
   const updateUser = useCallback(async (userData: Partial<User>) => {
     try {
-      if (!user) return;
-      
+      if (!user) {
+        return;
+      }
+
       const updatedUser = { ...user, ...userData };
       await setSecureObject(USER_DATA_KEY, updatedUser);
       setUserSafe(updatedUser);
@@ -147,4 +149,6 @@ export const [AuthProvider, useAuth] = createContextHook((): AuthContextValue =>
     logout,
     updateUser,
   }), [user, loading, login, register, logout, updateUser]);
-});
+}
+
+export const [AuthProvider, useAuth] = createContextHook(useAuthProvider);
