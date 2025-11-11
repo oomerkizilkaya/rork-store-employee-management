@@ -16,8 +16,6 @@ type ExpoGoConfigShape = {
   hostUri?: string;
 };
 
-export const trpc = createTRPCReact<AppRouter>();
-
 const sanitizeUrl = (url: string) => url.replace(/\/+$/, "");
 
 const getExpoConfig = (): ExpoConfigShape | undefined => {
@@ -225,6 +223,8 @@ const createLinks = () => [
     transformer: undefined,
   }),
 ];
+
+export const trpc = createTRPCReact<AppRouter>();
 
 export const trpcClient = trpc.createClient({
   links: createLinks(),

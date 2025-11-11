@@ -32,12 +32,21 @@ export default function LoginScreen() {
       return;
     }
 
-    setLoading(true);
-    
+    if (loading) {
+      return;
+    }
+
     try {
+      setLoading(true);
+      console.log('🔐 Login button pressed, attempting login...');
+      
       await login(email.trim(), password.trim());
+      
+      console.log('✅ Login successful, redirecting...');
       router.replace('/(tabs)/announcements');
     } catch (error: unknown) {
+      console.error('❌ Login error in screen:', error);
+      
       let errorMessage = 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
       
       if (error && typeof error === 'object' && 'message' in error) {

@@ -69,12 +69,22 @@ function useAuthProvider(): AuthContextValue {
   const login = useCallback(async (email: string, password: string) => {
     try {
       console.log('🚀 Starting login for:', email);
+      
       const response = await trpcClient.auth.login.mutate({
         email: email.trim(),
         password: password.trim(),
       });
 
-      console.log('✅ Login response received');
+      console.log('✅ Login response received:', {
+        hasToken: !!response.token,
+        hasUser: !!response.user,
+        userEmail: response.user?.email
+      });
+      
+      if (!response.token || !response.user) {
+        throw new Error('Invalid login response');
+      }
+
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
 

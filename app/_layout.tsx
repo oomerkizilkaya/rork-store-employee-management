@@ -18,7 +18,16 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const [queryClient] = useState<QueryClient>(() => new QueryClient());
+  const [queryClient] = useState<QueryClient>(
+    () => new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: 1,
+          refetchOnWindowFocus: false,
+        },
+      },
+    })
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -48,14 +57,14 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <AuthProvider>
-          <AppErrorBoundary>
+    <AppErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          <AuthProvider>
             <RootLayoutNav />
-          </AppErrorBoundary>
-        </AuthProvider>
-      </trpc.Provider>
-    </QueryClientProvider>
+          </AuthProvider>
+        </trpc.Provider>
+      </QueryClientProvider>
+    </AppErrorBoundary>
   );
 }
