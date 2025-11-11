@@ -1,5 +1,4 @@
-import createContextHook from '@nkzw/create-context-hook';
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { User } from '@/types';
 import { setSecureItem, getSecureItem, deleteSecureItem, setSecureObject } from '@/utils/secureStorage';
 import { trpcClient } from '@/lib/trpc';
@@ -151,4 +150,17 @@ function useAuthProvider(): AuthContextValue {
   }), [user, loading, login, register, logout, updateUser]);
 }
 
-export const [AuthProvider, useAuth] = createContextHook(useAuthProvider);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const value = useAuthProvider();
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+}
