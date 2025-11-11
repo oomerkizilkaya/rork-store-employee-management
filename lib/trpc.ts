@@ -176,28 +176,50 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
   console.log("🚀 tRPC Request:", {
     url,
     method: init?.method,
+    headers: init?.headers,
+    body: init?.body ? String(init.body).substring(0, 200) : undefined,
   });
 
   try {
+    const headers: Record<string, string> = {};
+    
+    if (init?.headers) {
+      if (init.headers instanceof Headers) {
+        init.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+      } else if (Array.isArray(init.headers)) {
+        init.headers.forEach(([key, value]) => {
+          headers[key] = value;
+        });
+      } else {
+        Object.assign(headers, init.headers);
+      }
+    }
+    
+    if (!headers["content-type"] && !headers["Content-Type"]) {
+      headers["content-type"] = "application/json";
+    }
+
     const response = await fetch(input, {
       ...init,
       credentials: 'include',
-      headers: {
-        ...init?.headers,
-        "Content-Type": "application/json",
-      },
+      headers,
     });
 
     console.log("📡 tRPC Response:", {
       url,
       status: response.status,
+      statusText: response.statusText,
       contentType: response.headers.get("content-type"),
+      headers: Object.fromEntries(response.headers.entries()),
     });
 
-    if (!response.ok && response.status !== 200) {
+    if (!response.ok) {
       const text = await response.clone().text();
       console.error("❌ Response error:", {
         status: response.status,
+        statusText: response.statusText,
         body: text.substring(0, 500),
       });
     }
@@ -205,6 +227,9 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
     return response;
   } catch (error) {
     console.error("❌ Fetch error:", error);
+    if (error instanceof Error) {
+      console.error("❌ Error stack:", error.stack);
+    }
     throw error;
   }
 };
@@ -229,7 +254,6 @@ export const trpc = createTRPCReact<AppRouter>();
 
 export const trpcClient = createTRPCClient<AppRouter>({
   links: createLinks(),
-  abortOnUnmount: true,
 });
 
 export function getTRPCClientOptions() {

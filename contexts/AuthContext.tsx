@@ -69,6 +69,10 @@ function useAuthProvider(): AuthContextValue {
   const login = useCallback(async (email: string, password: string) => {
     try {
       console.log('🚀 Starting login for:', email);
+      console.log('🔑 Login credentials:', {
+        email: email.trim().toLowerCase(),
+        passwordLength: password.trim().length,
+      });
       
       const response = await trpcClient.auth.login.mutate({
         email: email.trim().toLowerCase(),
@@ -79,6 +83,8 @@ function useAuthProvider(): AuthContextValue {
         hasToken: !!response.token,
         hasUser: !!response.user,
         userId: response.user?.id,
+        responseType: typeof response,
+        response: JSON.stringify(response).substring(0, 200),
       });
       
       if (!response || !response.token || !response.user) {
@@ -92,15 +98,17 @@ function useAuthProvider(): AuthContextValue {
       setUserSafe(response.user as User);
       console.log('✅ User logged in successfully:', response.user.email);
     } catch (error) {
-      console.error('❌ Login error:', error);
+      console.error('❌ Login hatası:', error);
       
       if (error && typeof error === 'object') {
         const errorObj = error as Record<string, unknown>;
-        console.error('❌ Error details:', {
+        console.error('❌ Error details:', JSON.stringify({
+          stack: errorObj.stack,
           message: errorObj.message,
+          cause: errorObj.cause,
           code: errorObj.code,
           data: errorObj.data,
-        });
+        }, null, 2));
       }
       
       throw error;

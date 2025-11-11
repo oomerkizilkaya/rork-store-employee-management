@@ -26,6 +26,8 @@ app.use("*", async (c, next) => {
 const handleTrpcRequest = async (c: Context) => {
   const url = new URL(c.req.url);
   console.log(`🔧 Handling tRPC request: ${c.req.method} ${url.pathname}`);
+  console.log(`🔍 Full URL: ${url.toString()}`);
+  console.log(`🔍 Headers:`, Object.fromEntries(c.req.raw.headers.entries()));
   
   try {
     const response = await fetchRequestHandler({
@@ -38,6 +40,7 @@ const handleTrpcRequest = async (c: Context) => {
           message: error.message,
           code: error.code,
           cause: error.cause,
+          stack: error.stack,
         });
       },
     });
@@ -45,11 +48,15 @@ const handleTrpcRequest = async (c: Context) => {
     console.log(`✅ tRPC response:`, {
       status: response.status,
       contentType: response.headers.get('content-type'),
+      headers: Object.fromEntries(response.headers.entries()),
     });
     
     return response;
   } catch (error) {
     console.error(`❌ Error in handleTrpcRequest:`, error);
+    if (error instanceof Error) {
+      console.error(`❌ Error stack:`, error.stack);
+    }
     return c.json(
       { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       500
@@ -66,6 +73,27 @@ app.get("/", (c) => {
 
 app.get("/api", (c) => {
   return c.json({ status: "ok", message: "tRPC API is running" });
+});
+
+app.get("/api/health", (c) => {
+  return c.json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    routes: [
+      "/api/trpc",
+      "/api/trpc/*",
+    ]
+  });
+});
+
+app.post("/api/test", async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  return c.json({ 
+    status: "ok", 
+    message: "Test endpoint working",
+    receivedBody: body,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.notFound((c) => {

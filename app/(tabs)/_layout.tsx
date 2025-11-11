@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Briefcase, FolderOpen, Users, Award, MapPin, Clock, DollarSign, Coffee, Bell, User } from 'lucide-react-native';
+import { Briefcase, FolderOpen, Users, Award, MapPin, Clock, DollarSign, Coffee, Bell, User, Bug } from 'lucide-react-native';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import colors from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
@@ -139,6 +139,13 @@ export default function TabLayout() {
         options={{
           title: 'Profil',
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="debug"
+        options={{
+          title: 'Debug',
+          tabBarIcon: ({ color, size }) => <Bug size={size} color={color} />,
         }}
       />
       </Tabs>
