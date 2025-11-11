@@ -213,12 +213,13 @@ const createLinks = () => [
     fetch: customFetch,
     async headers() {
       const token = await getSecureItem("mikel_auth_token");
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) {
-        return {
-          authorization: `Bearer ${token}`,
-        };
+        headers.authorization = `Bearer ${token}`;
       }
-      return {};
+      return headers;
     },
     transformer: undefined,
   }),
@@ -228,6 +229,7 @@ export const trpc = createTRPCReact<AppRouter>();
 
 export const trpcClient = createTRPCClient<AppRouter>({
   links: createLinks(),
+  abortOnUnmount: true,
 });
 
 export function getTRPCClientOptions() {

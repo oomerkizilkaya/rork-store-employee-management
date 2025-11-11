@@ -25,6 +25,7 @@ app.use("*", async (c, next) => {
 const handleTrpcRequest = async (c: Context) => {
   const url = new URL(c.req.url);
   console.log(`🔧 Handling tRPC request: ${url.pathname}`);
+  console.log(`🔧 Full URL: ${url.toString()}`);
   
   try {
     const response = await fetchRequestHandler({
@@ -34,6 +35,7 @@ const handleTrpcRequest = async (c: Context) => {
       createContext,
       onError({ error, path }) {
         console.error(`❌ tRPC Error on ${path}:`, error);
+        console.error(`❌ Error details:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
       },
       responseMeta() {
         return {
@@ -45,6 +47,8 @@ const handleTrpcRequest = async (c: Context) => {
     });
     
     console.log(`✅ tRPC response status:`, response.status);
+    const contentType = response.headers.get('content-type');
+    console.log(`✅ tRPC response content-type:`, contentType);
     return response;
   } catch (error) {
     console.error(`❌ Error in handleTrpcRequest:`, error);
@@ -52,8 +56,10 @@ const handleTrpcRequest = async (c: Context) => {
   }
 };
 
-app.all("/api/trpc/*", handleTrpcRequest);
-app.all("/api/trpc", handleTrpcRequest);
+app.post("/api/trpc", handleTrpcRequest);
+app.get("/api/trpc", handleTrpcRequest);
+app.post("/api/trpc/*", handleTrpcRequest);
+app.get("/api/trpc/*", handleTrpcRequest);
 
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
