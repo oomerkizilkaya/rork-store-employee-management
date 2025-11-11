@@ -32,7 +32,7 @@ const handleTrpcRequest = async (c: Context) => {
       endpoint: "/api/trpc",
       req: c.req.raw,
       router: appRouter,
-      createContext: (opts) => createContext(opts),
+      createContext,
       onError({ error, path }) {
         console.error(`❌ tRPC Error on ${path}:`, {
           message: error.message,
@@ -57,10 +57,8 @@ const handleTrpcRequest = async (c: Context) => {
   }
 };
 
-app.post("/api/trpc", handleTrpcRequest);
-app.get("/api/trpc", handleTrpcRequest);
-app.post("/api/trpc/*", handleTrpcRequest);
-app.get("/api/trpc/*", handleTrpcRequest);
+app.all("/api/trpc", handleTrpcRequest);
+app.all("/api/trpc/*", handleTrpcRequest);
 
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });

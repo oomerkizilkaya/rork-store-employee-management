@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import type { AppRouter } from "../backend/trpc/app-router";
 import { getSecureItem } from "../utils/secureStorage";
+import superjson from "superjson";
 
 type ExpoConfigShape = {
   hostUri?: string;
@@ -212,6 +213,7 @@ const createLinks = () => [
   httpLink({
     url: TRPC_URL,
     fetch: customFetch,
+    transformer: superjson,
     async headers() {
       const token = await getSecureItem("mikel_auth_token");
       const headers: Record<string, string> = {};

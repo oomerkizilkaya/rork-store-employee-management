@@ -2,6 +2,7 @@ import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { verifyJWT } from "../lib/auth";
 import { db } from "../db/database";
+import superjson from "superjson";
 
 export const createContext = async (opts: FetchCreateContextFnOptions) => {
   const authHeader = opts.req.headers.get('authorization');
@@ -24,6 +25,7 @@ export const createContext = async (opts: FetchCreateContextFnOptions) => {
 export type Context = Awaited<ReturnType<typeof createContext>>;
 
 const t = initTRPC.context<Context>().create({
+  transformer: superjson,
   errorFormatter({ shape }) {
     return shape;
   },
