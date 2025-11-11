@@ -71,30 +71,38 @@ function useAuthProvider(): AuthContextValue {
       console.log('🚀 Starting login for:', email);
       
       const response = await trpcClient.auth.login.mutate({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password: password.trim(),
       });
 
       console.log('✅ Login response received:', {
         hasToken: !!response.token,
         hasUser: !!response.user,
-        userEmail: response.user?.email
+        userId: response.user?.id,
       });
       
-      if (!response.token || !response.user) {
-        throw new Error('Invalid login response');
+      if (!response || !response.token || !response.user) {
+        console.error('❌ Invalid response structure:', response);
+        throw new Error('Sunucudan geçersiz yanıt alındı');
       }
 
       await setSecureItem(AUTH_TOKEN_KEY, response.token);
       await setSecureObject(USER_DATA_KEY, response.user);
 
       setUserSafe(response.user as User);
-      console.log('✅ User logged in successfully');
+      console.log('✅ User logged in successfully:', response.user.email);
     } catch (error) {
-      console.error('❌ Login hatası:', error);
+      console.error('❌ Login error:', error);
+      
       if (error && typeof error === 'object') {
-        console.error('❌ Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+        const errorObj = error as Record<string, unknown>;
+        console.error('❌ Error details:', {
+          message: errorObj.message,
+          code: errorObj.code,
+          data: errorObj.data,
+        });
       }
+      
       throw error;
     }
   }, [setUserSafe]);

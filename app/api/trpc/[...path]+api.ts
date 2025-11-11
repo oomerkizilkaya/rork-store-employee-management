@@ -2,28 +2,40 @@ import app from "../../../backend/hono";
 
 async function handleRequest(request: Request): Promise<Response> {
   const url = new URL(request.url);
-  console.log("🛠️ API Route Handler", {
+  console.log("🛠️ API Route Handler:", {
     method: request.method,
-    url: request.url,
     pathname: url.pathname,
-    search: url.search,
   });
 
   try {
     const response = await app.fetch(request);
     
-    console.log("✅ Hono response received:", {
-      status: response.status,
-      contentType: response.headers.get("content-type"),
-    });
+    if (!response.ok) {
+      const text = await response.clone().text();
+      console.error("❌ Hono error response:", {
+        status: response.status,
+        body: text.substring(0, 200),
+      });
+    } else {
+      console.log("✅ Hono success:", {
+        status: response.status,
+        contentType: response.headers.get("content-type"),
+      });
+    }
     
     return response;
   } catch (error) {
-    console.error("❌ Error in API route handler:", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("❌ Critical error in API route handler:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
 

@@ -8,11 +8,12 @@ import { createContext } from "./trpc/create-context";
 const app = new Hono();
 
 app.use("*", cors({
-  origin: '*',
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  origin: (origin) => origin || '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowHeaders: ['Content-Type', 'Authorization', 'x-trpc-source'],
   exposeHeaders: ['Content-Length', 'Content-Type'],
   credentials: true,
+  maxAge: 86400,
 }));
 
 app.use("*", async (c, next) => {
@@ -24,35 +25,35 @@ app.use("*", async (c, next) => {
 
 const handleTrpcRequest = async (c: Context) => {
   const url = new URL(c.req.url);
-  console.log(`🔧 Handling tRPC request: ${url.pathname}`);
-  console.log(`🔧 Full URL: ${url.toString()}`);
+  console.log(`🔧 Handling tRPC request: ${c.req.method} ${url.pathname}`);
   
   try {
     const response = await fetchRequestHandler({
       endpoint: "/api/trpc",
       req: c.req.raw,
       router: appRouter,
-      createContext,
+      createContext: (opts) => createContext(opts),
       onError({ error, path }) {
-        console.error(`❌ tRPC Error on ${path}:`, error);
-        console.error(`❌ Error details:`, JSON.stringify(error, Object.getOwnPropertyNames(error)));
-      },
-      responseMeta() {
-        return {
-          headers: {
-            'content-type': 'application/json',
-          },
-        };
+        console.error(`❌ tRPC Error on ${path}:`, {
+          message: error.message,
+          code: error.code,
+          cause: error.cause,
+        });
       },
     });
     
-    console.log(`✅ tRPC response status:`, response.status);
-    const contentType = response.headers.get('content-type');
-    console.log(`✅ tRPC response content-type:`, contentType);
+    console.log(`✅ tRPC response:`, {
+      status: response.status,
+      contentType: response.headers.get('content-type'),
+    });
+    
     return response;
   } catch (error) {
     console.error(`❌ Error in handleTrpcRequest:`, error);
-    throw error;
+    return c.json(
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
+      500
+    );
   }
 };
 

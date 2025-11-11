@@ -175,36 +175,37 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
   console.log("🚀 tRPC Request:", {
     url,
     method: init?.method,
-    headers: init?.headers,
-  });
-
-  const response = await fetch(input, {
-    ...init,
-    headers: {
-      ...init?.headers,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-  });
-
-  console.log("📡 tRPC Response:", {
-    url,
-    status: response.status,
-    contentType: response.headers.get("content-type"),
   });
 
   try {
-    const previewClone = response.clone();
-    const previewText = await previewClone.text();
-    console.log("📝 Response body (first 200 chars):", previewText.substring(0, 200));
-    if (!response.headers.get("content-type")?.includes("application/json")) {
-      console.error("❌ Unexpected content-type from API:", previewText.substring(0, 200));
-    }
-  } catch (error) {
-    console.error("❌ Could not read response body:", error);
-  }
+    const response = await fetch(input, {
+      ...init,
+      credentials: 'include',
+      headers: {
+        ...init?.headers,
+        "Content-Type": "application/json",
+      },
+    });
 
-  return response;
+    console.log("📡 tRPC Response:", {
+      url,
+      status: response.status,
+      contentType: response.headers.get("content-type"),
+    });
+
+    if (!response.ok && response.status !== 200) {
+      const text = await response.clone().text();
+      console.error("❌ Response error:", {
+        status: response.status,
+        body: text.substring(0, 500),
+      });
+    }
+
+    return response;
+  } catch (error) {
+    console.error("❌ Fetch error:", error);
+    throw error;
+  }
 };
 
 const createLinks = () => [
@@ -213,15 +214,12 @@ const createLinks = () => [
     fetch: customFetch,
     async headers() {
       const token = await getSecureItem("mikel_auth_token");
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
+      const headers: Record<string, string> = {};
       if (token) {
         headers.authorization = `Bearer ${token}`;
       }
       return headers;
     },
-    transformer: undefined,
   }),
 ];
 
