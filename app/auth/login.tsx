@@ -26,6 +26,19 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const router = useRouter();
 
+  const testBackend = async () => {
+    try {
+      console.log('🧪 Testing backend connection...');
+      const response = await fetch('https://8081-iu0sg9hfqct46kqzl4bda-6532622b.e2b.app/api/health');
+      const data = await response.json();
+      console.log('✅ Backend health check:', data);
+      Alert.alert('Backend Test', JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error('❌ Backend health check failed:', error);
+      Alert.alert('Backend Test Failed', String(error));
+    }
+  };
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Hata', 'Lütfen tüm alanları doldurun');
@@ -90,6 +103,11 @@ export default function LoginScreen() {
             />
             <Text style={styles.title}>Hoş Geldiniz</Text>
             <Text style={styles.subtitle}>Devam etmek için giriş yapın</Text>
+            <View style={styles.testCredentials}>
+              <Text style={styles.testTitle}>Test Hesapları:</Text>
+              <Text style={styles.testText}>Admin: admin@tr.mikelcoffee.com / Admin123</Text>
+              <Text style={styles.testText}>Test: test@tr.mikelcoffee.com / Test123</Text>
+            </View>
           </View>
 
           <View style={styles.form}>
@@ -147,6 +165,13 @@ export default function LoginScreen() {
               <Text style={styles.loginButtonText}>
                 {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
               </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.testButton]}
+              onPress={testBackend}
+            >
+              <Text style={styles.testButtonText}>Test Backend</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
@@ -295,5 +320,36 @@ const styles = StyleSheet.create({
   },
   eyeButton: {
     padding: 12,
+  },
+  testButton: {
+    height: 48,
+    backgroundColor: colors.gray[600],
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  testButtonText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  testCredentials: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 8,
+  },
+  testTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.white,
+    marginBottom: 4,
+  },
+  testText: {
+    fontSize: 11,
+    color: colors.white,
+    opacity: 0.9,
+    marginTop: 2,
   },
 });

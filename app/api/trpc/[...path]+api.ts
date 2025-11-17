@@ -2,30 +2,57 @@ import app from "../../../backend/hono";
 
 async function handleRequest(request: Request): Promise<Response> {
   const url = new URL(request.url);
-  console.log("🛠️ API Route Handler:", {
+  console.log("🛠️ [API Route] Handling:", {
     method: request.method,
     pathname: url.pathname,
+    search: url.search,
+    fullUrl: url.toString(),
   });
 
   try {
-    const response = await app.fetch(request);
+    const modifiedUrl = new URL(request.url);
+    
+    if (!modifiedUrl.pathname.startsWith('/api/trpc')) {
+      const pathParts = modifiedUrl.pathname.split('/api/trpc/');
+      if (pathParts.length > 1) {
+        modifiedUrl.pathname = '/api/trpc/' + pathParts[1];
+      } else {
+        modifiedUrl.pathname = modifiedUrl.pathname.replace(/^\/api\/trpc/, '/api/trpc');
+      }
+    }
+    
+    console.log("🔄 [API Route] Modified URL:", modifiedUrl.pathname + modifiedUrl.search);
+    
+    const modifiedRequest = new Request(modifiedUrl.toString(), {
+      method: request.method,
+      headers: request.headers,
+      body: request.body,
+      duplex: 'half' as RequestDuplex,
+    });
+    
+    const response = await app.fetch(modifiedRequest);
+    
+    console.log("📦 [API Route] Response:", {
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get("content-type"),
+      headers: Array.from(response.headers.entries()),
+    });
     
     if (!response.ok) {
       const text = await response.clone().text();
-      console.error("❌ Hono error response:", {
+      console.error("❌ [API Route] Error response:", {
         status: response.status,
-        body: text.substring(0, 200),
-      });
-    } else {
-      console.log("✅ Hono success:", {
-        status: response.status,
-        contentType: response.headers.get("content-type"),
+        body: text.substring(0, 500),
       });
     }
     
     return response;
   } catch (error) {
-    console.error("❌ Critical error in API route handler:", error);
+    console.error("❌ [API Route] Critical error:", error);
+    if (error instanceof Error) {
+      console.error("❌ [API Route] Error stack:", error.stack);
+    }
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",

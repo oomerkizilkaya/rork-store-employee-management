@@ -69,6 +69,7 @@ function useAuthProvider(): AuthContextValue {
   const login = useCallback(async (email: string, password: string) => {
     try {
       console.log('🚀 Starting login for:', email);
+      console.log('🔗 tRPC client configured');
       
       const response = await trpcClient.auth.login.mutate({
         email: email.trim().toLowerCase(),
@@ -79,10 +80,12 @@ function useAuthProvider(): AuthContextValue {
         hasToken: !!response.token,
         hasUser: !!response.user,
         userId: response.user?.id,
+        responseType: typeof response,
+        responseKeys: Object.keys(response || {}),
       });
       
       if (!response || !response.token || !response.user) {
-        console.error('❌ Invalid response structure');
+        console.error('❌ Invalid response structure:', response);
         throw new Error('Sunucudan geçersiz yanıt alındı');
       }
 
@@ -99,6 +102,8 @@ function useAuthProvider(): AuthContextValue {
         console.error('❌ Error details:', JSON.stringify({
           message: errorObj.message,
           code: errorObj.code,
+          cause: errorObj.cause,
+          stack: typeof errorObj.stack === 'string' ? errorObj.stack.substring(0, 500) : errorObj.stack,
         }, null, 2));
       }
       

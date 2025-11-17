@@ -1,5 +1,5 @@
 import { createTRPCReact } from "@trpc/react-query";
-import { httpBatchLink, createTRPCClient } from "@trpc/client";
+import { httpLink, createTRPCClient } from "@trpc/client";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import type { AppRouter } from "../backend/trpc/app-router";
@@ -225,11 +225,10 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
 };
 
 const createLinks = () => [
-  httpBatchLink({
+  httpLink({
     url: TRPC_URL,
     fetch: customFetch,
     transformer: superjson,
-    maxURLLength: 2083,
     async headers() {
       const token = await getSecureItem("mikel_auth_token");
       const headers: Record<string, string> = {};
