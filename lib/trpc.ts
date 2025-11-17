@@ -3,8 +3,6 @@ import { httpLink, createTRPCClient } from "@trpc/client";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import type { AppRouter } from "../backend/trpc/app-router";
-import { getSecureItem } from "../utils/secureStorage";
-import superjson from "superjson";
 
 type ExpoConfigShape = {
   hostUri?: string;
@@ -239,21 +237,24 @@ const createLinks = () => [
   httpLink({
     url: TRPC_URL,
     fetch: customFetch,
-    transformer: superjson,
     async headers() {
-      const token = await getSecureItem("mikel_auth_token");
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers.authorization = `Bearer ${token}`;
+      try {
+        const { getSecureItem } = await import("../utils/secureStorage");
+        const token = await getSecureItem("mikel_auth_token");
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers.authorization = `Bearer ${token}`;
+        }
+        return headers;
+      } catch (error) {
+        console.error('❌ Error getting auth token:', error);
+        return {};
       }
-      return headers;
     },
   }),
 ];
 
-export const trpc = createTRPCReact<AppRouter>({
-  transformer: superjson,
-});
+export const trpc = createTRPCReact<AppRouter>();
 
 export const trpcClient = createTRPCClient<AppRouter>({
   links: createLinks(),

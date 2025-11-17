@@ -3,7 +3,6 @@ import { cors } from "hono/cors";
 import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
-import superjson from "superjson";
 
 const app = new Hono();
 
@@ -44,7 +43,7 @@ app.use(
         cause: error.cause,
       });
     },
-    transformer: superjson,
+    endpoint: '/api/trpc',
   })
 );
 
@@ -83,8 +82,7 @@ app.post("/api/trpc-test", async (c) => {
       message: "Test",
       timestamp: new Date().toISOString() 
     };
-    const serialized = superjson.serialize(testData);
-    return c.json(serialized, 200, {
+    return c.json(testData, 200, {
       'Content-Type': 'application/json',
     });
   } catch (error) {
