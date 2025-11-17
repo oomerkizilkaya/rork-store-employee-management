@@ -11,16 +11,23 @@ async function handleRequest(request: Request): Promise<Response> {
 
   try {
     const modifiedUrl = new URL(request.url);
+    let newPath = modifiedUrl.pathname;
     
-    if (!modifiedUrl.pathname.startsWith('/api/trpc')) {
-      const pathParts = modifiedUrl.pathname.split('/api/trpc/');
-      if (pathParts.length > 1) {
-        modifiedUrl.pathname = '/api/trpc/' + pathParts[1];
-      } else {
-        modifiedUrl.pathname = modifiedUrl.pathname.replace(/^\/api\/trpc/, '/api/trpc');
+    if (!newPath.startsWith('/api/trpc/')) {
+      const match = newPath.match(/\/api\/trpc\/(.*)$/);
+      if (match) {
+        newPath = '/api/trpc/' + match[1];
+      } else if (newPath.includes('/api/trpc')) {
+        const parts = newPath.split('/api/trpc');
+        if (parts[1]) {
+          newPath = '/api/trpc' + parts[1];
+        } else {
+          newPath = '/api/trpc/' + parts[1];
+        }
       }
     }
     
+    modifiedUrl.pathname = newPath;
     console.log("🔄 [API Route] Modified URL:", modifiedUrl.pathname + modifiedUrl.search);
     
     const modifiedRequest = new Request(modifiedUrl.toString(), {
