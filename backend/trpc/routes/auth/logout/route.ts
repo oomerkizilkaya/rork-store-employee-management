@@ -1,5 +1,7 @@
 import { protectedProcedure } from '../../../create-context';
 
-export default protectedProcedure.mutation(async () => {
+export const logoutProcedure = protectedProcedure.mutation(async () => {
   return { success: true, message: 'Çıkış başarılı' };
 });
+
+export default logoutProcedure;

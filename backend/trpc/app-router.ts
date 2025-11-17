@@ -5,6 +5,13 @@ import registerRoute from "./routes/auth/register/route";
 import meRoute from "./routes/auth/me/route";
 import logoutRoute from "./routes/auth/logout/route";
 
+console.log('🔧 Creating appRouter with routes:', {
+  loginRoute: !!loginRoute,
+  registerRoute: !!registerRoute,
+  meRoute: !!meRoute,
+  logoutRoute: !!logoutRoute,
+});
+
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
     hi: hiRoute,
@@ -16,5 +23,7 @@ export const appRouter = createTRPCRouter({
     logout: logoutRoute,
   }),
 });
+
+console.log('✅ appRouter created successfully');
 
 export type AppRouter = typeof appRouter;

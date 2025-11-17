@@ -4,7 +4,7 @@ import { db } from '../../../../db/database';
 import { verifyPassword, generateJWT } from '../../../../lib/auth';
 import { TRPCError } from '@trpc/server';
 
-export default publicProcedure
+export const loginProcedure = publicProcedure
   .input(
     z.object({
       email: z.string().email(),
@@ -57,3 +57,5 @@ export default publicProcedure
     
     return response;
   });
+
+export default loginProcedure;

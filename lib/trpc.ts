@@ -250,7 +250,9 @@ const createLinks = () => [
   }),
 ];
 
-export const trpc = createTRPCReact<AppRouter>();
+export const trpc = createTRPCReact<AppRouter>({
+  transformer: superjson,
+});
 
 export const trpcClient = createTRPCClient<AppRouter>({
   links: createLinks(),

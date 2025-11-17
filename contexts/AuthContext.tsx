@@ -74,6 +74,7 @@ function useAuthProvider(): AuthContextValue {
         passwordLength: password.trim().length,
       });
       
+      console.log('📡 Calling trpcClient.auth.login.mutate...');
       const response = await trpcClient.auth.login.mutate({
         email: email.trim().toLowerCase(),
         password: password.trim(),
@@ -84,7 +85,8 @@ function useAuthProvider(): AuthContextValue {
         hasUser: !!response.user,
         userId: response.user?.id,
         responseType: typeof response,
-        response: JSON.stringify(response).substring(0, 200),
+        responseKeys: Object.keys(response || {}),
+        response: JSON.stringify(response).substring(0, 300),
       });
       
       if (!response || !response.token || !response.user) {

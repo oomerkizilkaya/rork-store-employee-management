@@ -4,7 +4,7 @@ import { db } from '../../../../db/database';
 import { hashPassword, validateEmail, validatePassword } from '../../../../lib/auth';
 import { TRPCError } from '@trpc/server';
 
-export default publicProcedure
+export const registerProcedure = publicProcedure
   .input(
     z.object({
       firstName: z.string().min(1),
@@ -71,3 +71,5 @@ export default publicProcedure
       message: 'Kaydınız alındı. Onaylandığında bildirim alacaksınız.',
     };
   });
+
+export default registerProcedure;
