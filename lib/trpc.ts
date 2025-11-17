@@ -159,6 +159,7 @@ const buildTrpcUrl = (baseUrl: string): string => {
 };
 
 const TRPC_URL = buildTrpcUrl(BASE_URL);
+console.log("🔗 tRPC Base URL:", BASE_URL);
 console.log("🔗 tRPC Endpoint URL:", TRPC_URL);
 
 const toRequestUrl = (input: RequestInfo | URL): string => {
@@ -176,6 +177,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
   console.log("🚀 tRPC Request:", {
     url,
     method: init?.method,
+    body: init?.body ? String(init.body).substring(0, 200) : 'none',
   });
 
   try {
@@ -206,15 +208,24 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
     console.log("📡 tRPC Response:", {
       url,
       status: response.status,
+      statusText: response.statusText,
       contentType: response.headers.get("content-type"),
+      headers: Object.fromEntries(response.headers.entries()),
     });
 
     if (!response.ok) {
       const text = await response.clone().text();
       console.error("❌ Response error:", {
         status: response.status,
-        body: text.substring(0, 300),
+        statusText: response.statusText,
+        body: text.substring(0, 500),
+        isJson: text.startsWith('{') || text.startsWith('['),
       });
+      
+      if (!text.startsWith('{') && !text.startsWith('[')) {
+        console.error("❌ Non-JSON response detected! First char:", text.charAt(0));
+        console.error("❌ Full error body:", text);
+      }
     }
 
     return response;

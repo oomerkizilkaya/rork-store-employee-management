@@ -29,7 +29,11 @@ export default function LoginScreen() {
   const testBackend = async () => {
     try {
       console.log('🧪 Testing backend connection...');
-      const response = await fetch('https://8081-iu0sg9hfqct46kqzl4bda-6532622b.e2b.app/api/health');
+      const baseUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || '';
+      console.log('Base URL:', baseUrl);
+      const healthUrl = `${baseUrl}/api/health`;
+      console.log('Health URL:', healthUrl);
+      const response = await fetch(healthUrl);
       const data = await response.json();
       console.log('✅ Backend health check:', data);
       Alert.alert('Backend Test', JSON.stringify(data, null, 2));
