@@ -1,18 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Pressable, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
+import { trpc } from '@/lib/trpc';
 
 import * as Sharing from 'expo-sharing';
 import { Stack } from 'expo-router';
 
 import colors from '@/constants/colors';
-import { Search, Download, User as UserIcon, Phone, Mail, MapPin, UserX, X } from 'lucide-react-native';
+import { Search, Download, User as UserIcon, Phone, Mail, MapPin, UserX, X, Loader } from 'lucide-react-native';
 import { User, UserPosition } from '@/types';
 import { canSeeAllStores, canSeePhoneNumbers, canApproveEmployees } from '@/utils/permissions';
-import { sendRegistrationApprovedNotification } from '@/utils/notifications';
 
 const getPositionLabel = (position: UserPosition): string => {
   const labels: Record<UserPosition, string> = {
@@ -37,8 +36,6 @@ export default function EmployeesScreen() {
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
   const [terminationReason, setTerminationReason] = useState('');
   const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
-  const [pendingUsers, setPendingUsers] = useState<(User & { password: string })[]>([]);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     Animated.loop(
@@ -50,202 +47,64 @@ export default function EmployeesScreen() {
     ).start();
   }, [spinValue]);
 
-  const [allEmployees, setAllEmployees] = useState<User[]>([
-    {
-      id: '1',
-      employeeId: 'MKL0001',
-      firstName: 'Ahmet',
-      lastName: 'Yılmaz',
-      email: 'ahmet.yilmaz@mikel.com',
-      phone: '555 123 4567',
-      store: 'Kadıköy',
-      position: 'magaza_muduru' as UserPosition,
-      startDate: '2023-01-15',
-      isTerminated: false,
+  const usersQuery = trpc.users.list.useQuery(undefined, {
+    refetchInterval: 5000,
+  });
+  
+  const approveMutation = trpc.users.approve.useMutation({
+    onSuccess: () => {
+      usersQuery.refetch();
+      Alert.alert('Başarılı', 'Kullanıcı onaylandı.');
     },
-    {
-      id: '2',
-      employeeId: 'MKL0002',
-      firstName: 'Ayşe',
-      lastName: 'Demir',
-      email: 'ayse.demir@mikel.com',
-      phone: '555 234 5678',
-      store: 'Kadıköy',
-      position: 'barista' as UserPosition,
-      startDate: '2023-06-20',
-      isTerminated: false,
+    onError: (error) => {
+      Alert.alert('Hata', error.message || 'Onaylama işlemi başarısız.');
     },
-    {
-      id: '3',
-      employeeId: 'MKL0003',
-      firstName: 'Mehmet',
-      lastName: 'Kaya',
-      email: 'mehmet.kaya@mikel.com',
-      phone: '555 345 6789',
-      store: 'Beşiktaş',
-      position: 'supervisor' as UserPosition,
-      startDate: '2023-03-10',
-      isTerminated: false,
+  });
+
+  const rejectMutation = trpc.users.reject.useMutation({
+    onSuccess: () => {
+      usersQuery.refetch();
+      Alert.alert('Başarılı', 'Kullanıcı reddedildi.');
     },
-    {
-      id: '4',
-      employeeId: 'MKL0004',
-      firstName: 'Zeynep',
-      lastName: 'Şahin',
-      email: 'zeynep.sahin@mikel.com',
-      phone: '555 456 7890',
-      store: 'Kadıköy',
-      position: 'mudur_yardimcisi' as UserPosition,
-      startDate: '2023-02-20',
-      isTerminated: false,
+    onError: (error) => {
+      Alert.alert('Hata', error.message || 'Reddetme işlemi başarısız.');
     },
-  ]);
+  });
 
   const canSeeAll = user ? canSeeAllStores(user.position) : false;
   const canSeePhone = user ? canSeePhoneNumbers(user.position) : false;
   const canApprove = user ? canApproveEmployees(user.position) : false;
 
-  useEffect(() => {
-    loadPendingUsers();
-    loadAllEmployees();
-  }, [refreshKey, user]);
+  const allEmployees = useMemo(() => {
+    if (!usersQuery.data) return [];
+    return usersQuery.data.filter(u => u.isApproved && !u.isTerminated) as User[];
+  }, [usersQuery.data]);
 
-  const loadAllEmployees = async () => {
-    try {
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
-      if (!allUsersStr) return;
+  const pendingUsers = useMemo(() => {
+    if (!usersQuery.data || !user) return [];
+    
+    const pending = usersQuery.data.filter(u => !u.isApproved && !u.isTerminated);
+    
+    return pending.filter(u => {
+      if (user.position === 'insan_kaynaklari' || user.position === 'egitim_muduru') {
+        return true;
+      }
+      if (user.position === 'bolge_muduru' || user.position === 'egitmen') {
+        return u.region === user.region;
+      }
+      if (user.position === 'magaza_muduru' || user.position === 'mudur_yardimcisi' || user.position === 'supervisor') {
+        return u.store === user.store;
+      }
+      return false;
+    }) as User[];
+  }, [usersQuery.data, user]);
 
-      const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
-      const approved = allUsers.filter(u => u.isApproved && !u.isTerminated);
-      setAllEmployees(approved as User[]);
-    } catch (error) {
-      console.error('Çalışanlar yükleme hatası:', error);
-    }
+  const handleApprove = (userId: string) => {
+    approveMutation.mutate({ userId });
   };
 
-  const loadPendingUsers = async () => {
-    try {
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
-      if (!allUsersStr) {
-        console.log('⚠️ Hiç kullanıcı bulunamadı');
-        return;
-      }
-
-      const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
-      console.log('📊 Toplam kullanıcı sayısı:', allUsers.length);
-      
-      const pending = allUsers.filter(u => !u.isApproved && !u.isTerminated);
-      
-      console.log('📋 Bekleyen onay sayısı:', pending.length);
-      console.log('👤 Mevcut kullanıcı pozisyonu:', user?.position);
-      
-      if (pending.length > 0) {
-        console.log('📝 Bekleyen kullanıcılar:');
-        pending.forEach(u => {
-          console.log(`  - ${u.firstName} ${u.lastName} (${u.email}) - Mağaza: ${u.store}, Bölge: ${u.region || 'Yok'}`);
-        });
-      }
-      
-      if (user) {
-        const filtered = pending.filter(u => {
-          if (user.position === 'insan_kaynaklari') {
-            console.log(`✅ İnsan Kaynakları - ${u.firstName} ${u.lastName} gösteriliyor`);
-            return true;
-          }
-          if (user.position === 'egitim_muduru') {
-            console.log(`✅ Eğitim Müdürü - ${u.firstName} ${u.lastName} gösteriliyor`);
-            return true;
-          }
-          if (user.position === 'bolge_muduru') {
-            const match = u.region === user.region;
-            console.log(`🌍 Bölge Müdürü kontrolü: ${u.region} === ${user.region} = ${match}`);
-            return match;
-          }
-          if (user.position === 'magaza_muduru' || user.position === 'mudur_yardimcisi' || user.position === 'supervisor') {
-            const match = u.store === user.store;
-            console.log(`🏪 Mağaza kontrolü: ${u.store} === ${user.store} = ${match}`);
-            return match;
-          }
-          if (user.position === 'egitmen') {
-            const match = u.region === user.region;
-            console.log(`🌍 Bölge kontrolü (Eğitmen): ${u.region} === ${user.region} = ${match}`);
-            return match;
-          }
-          return false;
-        });
-        console.log('📊 Filtrelenmiş onay sayısı:', filtered.length);
-        if (filtered.length > 0) {
-          console.log('✅ Gösterilecek bekleyen kullanıcılar:');
-          filtered.forEach(u => {
-            console.log(`  - ${u.firstName} ${u.lastName} (${u.store})`);
-          });
-        } else {
-          console.log('⚠️ Gösterilecek bekleyen kullanıcı yok!');
-        }
-        setPendingUsers(filtered);
-      } else {
-        console.log('⚠️ User objesi yok!');
-      }
-    } catch (error) {
-      console.error('❌ Pending users yükleme hatası:', error);
-    }
-  };
-
-  const handleApprove = async (userId: string) => {
-    try {
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
-      if (!allUsersStr || !user) return;
-
-      const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
-      const userIndex = allUsers.findIndex(u => u.id === userId);
-      
-      if (userIndex === -1) return;
-
-      const approvedBy = allUsers[userIndex].approvedBy || [];
-      approvedBy.push(user.id);
-      allUsers[userIndex].approvedBy = approvedBy;
-
-      const needsApproval = ['magaza_muduru', 'mudur_yardimcisi', 'supervisor'].includes(user.position) ? 1 : 1;
-      
-      const wasApproved = allUsers[userIndex].isApproved;
-      if (approvedBy.length >= needsApproval) {
-        allUsers[userIndex].isApproved = true;
-      }
-
-      await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
-      
-      if (!wasApproved && allUsers[userIndex].isApproved) {
-        console.log('📧 Onay bildirimi gönderiliyor...');
-        await sendRegistrationApprovedNotification(
-          `${allUsers[userIndex].firstName} ${allUsers[userIndex].lastName}`,
-          'approved'
-        );
-      }
-      
-      Alert.alert('Başarılı', 'Kullanıcı onaylandı.');
-      setRefreshKey(prev => prev + 1);
-    } catch (error) {
-      console.error('Onaylama hatası:', error);
-      Alert.alert('Hata', 'Onaylama işlemi başarısız.');
-    }
-  };
-
-  const handleReject = async (userId: string) => {
-    try {
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
-      if (!allUsersStr) return;
-
-      const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
-      const filtered = allUsers.filter(u => u.id !== userId);
-      
-      await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(filtered));
-      
-      Alert.alert('Başarılı', 'Kullanıcı reddedildi.');
-      setRefreshKey(prev => prev + 1);
-    } catch (error) {
-      console.error('Reddetme hatası:', error);
-      Alert.alert('Hata', 'Reddetme işlemi başarısız.');
-    }
+  const handleReject = (userId: string) => {
+    rejectMutation.mutate({ userId });
   };
 
   const mockEmployees = canSeeAll 
@@ -260,35 +119,15 @@ export default function EmployeesScreen() {
     (emp.employeeId && emp.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const handleTerminate = async () => {
+  const handleTerminate = () => {
     if (!terminationReason.trim()) {
       Alert.alert('Hata', 'Lütfen işten çıkarma sebebini giriniz.');
       return;
     }
 
-    try {
-      const allUsersStr = await AsyncStorage.getItem('@mikel_all_users');
-      if (!allUsersStr || !selectedEmployee) return;
-
-      const allUsers: (User & { password: string })[] = JSON.parse(allUsersStr);
-      const userIndex = allUsers.findIndex(u => u.id === selectedEmployee.id);
-
-      if (userIndex !== -1) {
-        allUsers[userIndex].isTerminated = true;
-        allUsers[userIndex].terminatedDate = new Date().toISOString();
-        allUsers[userIndex].terminationReason = terminationReason;
-
-        await AsyncStorage.setItem('@mikel_all_users', JSON.stringify(allUsers));
-      }
-
-      Alert.alert('Başarılı', `${selectedEmployee.firstName} ${selectedEmployee.lastName} işten çıkarıldı.`);
-      setSelectedEmployee(null);
-      setTerminationReason('');
-      setRefreshKey(prev => prev + 1);
-    } catch (error) {
-      console.error('İşten ��ıkarma hatası:', error);
-      Alert.alert('Hata', 'İşten çıkarma işlemi başarısız.');
-    }
+    Alert.alert('Bilgi', 'İşten çıkarma özelliği yakında eklenecek.');
+    setSelectedEmployee(null);
+    setTerminationReason('');
   };
 
   const handleExportToExcel = async () => {
@@ -412,6 +251,22 @@ export default function EmployeesScreen() {
         </Text>
       </View>
 
+      {usersQuery.isLoading ? (
+        <View style={styles.loadingContainer}>
+          <Loader size={40} color={colors.primary} />
+          <Text style={styles.loadingText}>Yükleniyor...</Text>
+        </View>
+      ) : usersQuery.error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Hata: {usersQuery.error.message}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={() => usersQuery.refetch()}
+          >
+            <Text style={styles.retryButtonText}>Tekrar Dene</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {activeTab === 'pending' ? (
           pendingUsers.map((employee) => (
@@ -535,6 +390,7 @@ export default function EmployeesScreen() {
         ))
         )}
       </ScrollView>
+      )}
 
       <Modal
         visible={selectedEmployee !== null}
@@ -946,5 +802,38 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700' as const,
     color: colors.white,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: colors.gray[600],
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.error,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '600' as const,
   },
 });

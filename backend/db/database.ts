@@ -11,7 +11,7 @@ class Database {
   }
 
   private seedDefaultData() {
-    const passwordHash = bcrypt.hashSync('Admin123', 10);
+    const adminPasswordHash = bcrypt.hashSync('Admin123', 10);
     
     const adminUser: User = {
       id: '1',
@@ -19,7 +19,7 @@ class Database {
       firstName: 'Admin',
       lastName: 'Admin',
       email: 'admin@tr.mikelcoffee.com',
-      passwordHash,
+      passwordHash: adminPasswordHash,
       phone: '05551234567',
       store: 'Merkez',
       region: 'İstanbul',
@@ -32,6 +32,27 @@ class Database {
     };
     this.users.set(adminUser.id, adminUser);
     this.emailIndex.set(adminUser.email.toLowerCase(), adminUser.id);
+    
+    const testUserPasswordHash = bcrypt.hashSync('Test123', 10);
+    const testUser: User = {
+      id: '2',
+      employeeId: 'MKL0002',
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@tr.mikelcoffee.com',
+      passwordHash: testUserPasswordHash,
+      phone: '05559876543',
+      store: 'Merkez',
+      region: 'İstanbul',
+      position: 'barista',
+      startDate: '2024-01-15',
+      isApproved: true,
+      approvedBy: ['1'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.users.set(testUser.id, testUser);
+    this.emailIndex.set(testUser.email.toLowerCase(), testUser.id);
   }
 
   async createUser(user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> {
