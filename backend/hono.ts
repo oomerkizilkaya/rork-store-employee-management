@@ -1,14 +1,16 @@
 import { Hono } from "hono";
-import type { Context } from "hono";
 import { cors } from "hono/cors";
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { trpcServer } from "@hono/trpc-server";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
 
 const app = new Hono();
 
 app.use("*", cors({
-  origin: (origin) => origin || '*',
+  origin: (origin) => {
+    console.log('🌐 CORS origin:', origin);
+    return origin || '*';
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowHeaders: ['Content-Type', 'Authorization', 'x-trpc-source'],
   exposeHeaders: ['Content-Length', 'Content-Type'],
@@ -23,49 +25,26 @@ app.use("*", async (c, next) => {
   console.log(`✅ Hono response: ${c.res.status}`);
 });
 
-const handleTrpcRequest = async (c: Context) => {
-  const url = new URL(c.req.url);
-  console.log(`🔧 Handling tRPC request: ${c.req.method} ${url.pathname}`);
-  console.log(`🔍 Full URL: ${url.toString()}`);
-  console.log(`🔍 Headers:`, Object.fromEntries(c.req.raw.headers.entries()));
-  
-  try {
-    const response = await fetchRequestHandler({
-      endpoint: "/api/trpc",
-      req: c.req.raw,
-      router: appRouter,
-      createContext,
-      onError({ error, path }) {
-        console.error(`❌ tRPC Error on ${path}:`, {
-          message: error.message,
-          code: error.code,
-          cause: error.cause,
-          stack: error.stack,
-        });
-      },
-    });
-    
-    console.log(`✅ tRPC response:`, {
-      status: response.status,
-      contentType: response.headers.get('content-type'),
-      headers: Object.fromEntries(response.headers.entries()),
-    });
-    
-    return response;
-  } catch (error) {
-    console.error(`❌ Error in handleTrpcRequest:`, error);
-    if (error instanceof Error) {
-      console.error(`❌ Error stack:`, error.stack);
-    }
-    return c.json(
-      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
-      500
-    );
-  }
-};
-
-app.all("/api/trpc", handleTrpcRequest);
-app.all("/api/trpc/*", handleTrpcRequest);
+app.use(
+  "/api/trpc/*",
+  trpcServer({
+    router: appRouter,
+    createContext: async ({ req }) => {
+      const url = new URL(req.url);
+      console.log(`🔧 tRPC context creation: ${req.method} ${url.pathname}`);
+      const authHeader = req.headers.get('authorization');
+      console.log('🔑 Auth header:', authHeader ? 'Present' : 'Missing');
+      return createContext({ req, resHeaders: new Headers() });
+    },
+    onError({ error, path, ctx }) {
+      console.error(`❌ tRPC Error on ${path}:`, {
+        message: error.message,
+        code: error.code,
+        cause: error.cause,
+      });
+    },
+  })
+);
 
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });

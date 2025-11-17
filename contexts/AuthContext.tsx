@@ -69,12 +69,7 @@ function useAuthProvider(): AuthContextValue {
   const login = useCallback(async (email: string, password: string) => {
     try {
       console.log('🚀 Starting login for:', email);
-      console.log('🔑 Login credentials:', {
-        email: email.trim().toLowerCase(),
-        passwordLength: password.trim().length,
-      });
       
-      console.log('📡 Calling trpcClient.auth.login.mutate...');
       const response = await trpcClient.auth.login.mutate({
         email: email.trim().toLowerCase(),
         password: password.trim(),
@@ -84,13 +79,10 @@ function useAuthProvider(): AuthContextValue {
         hasToken: !!response.token,
         hasUser: !!response.user,
         userId: response.user?.id,
-        responseType: typeof response,
-        responseKeys: Object.keys(response || {}),
-        response: JSON.stringify(response).substring(0, 300),
       });
       
       if (!response || !response.token || !response.user) {
-        console.error('❌ Invalid response structure:', response);
+        console.error('❌ Invalid response structure');
         throw new Error('Sunucudan geçersiz yanıt alındı');
       }
 
@@ -105,11 +97,8 @@ function useAuthProvider(): AuthContextValue {
       if (error && typeof error === 'object') {
         const errorObj = error as Record<string, unknown>;
         console.error('❌ Error details:', JSON.stringify({
-          stack: errorObj.stack,
           message: errorObj.message,
-          cause: errorObj.cause,
           code: errorObj.code,
-          data: errorObj.data,
         }, null, 2));
       }
       

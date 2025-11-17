@@ -1,5 +1,5 @@
 import { createTRPCReact } from "@trpc/react-query";
-import { httpLink, createTRPCClient } from "@trpc/client";
+import { httpBatchLink, createTRPCClient } from "@trpc/client";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import type { AppRouter } from "../backend/trpc/app-router";
@@ -176,8 +176,6 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
   console.log("🚀 tRPC Request:", {
     url,
     method: init?.method,
-    headers: init?.headers,
-    body: init?.body ? String(init.body).substring(0, 200) : undefined,
   });
 
   try {
@@ -197,9 +195,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
       }
     }
     
-    if (!headers["content-type"] && !headers["Content-Type"]) {
-      headers["content-type"] = "application/json";
-    }
+    headers["content-type"] = "application/json";
 
     const response = await fetch(input, {
       ...init,
@@ -210,35 +206,30 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
     console.log("📡 tRPC Response:", {
       url,
       status: response.status,
-      statusText: response.statusText,
       contentType: response.headers.get("content-type"),
-      headers: Object.fromEntries(response.headers.entries()),
     });
 
     if (!response.ok) {
       const text = await response.clone().text();
       console.error("❌ Response error:", {
         status: response.status,
-        statusText: response.statusText,
-        body: text.substring(0, 500),
+        body: text.substring(0, 300),
       });
     }
 
     return response;
   } catch (error) {
     console.error("❌ Fetch error:", error);
-    if (error instanceof Error) {
-      console.error("❌ Error stack:", error.stack);
-    }
     throw error;
   }
 };
 
 const createLinks = () => [
-  httpLink({
+  httpBatchLink({
     url: TRPC_URL,
     fetch: customFetch,
     transformer: superjson,
+    maxURLLength: 2083,
     async headers() {
       const token = await getSecureItem("mikel_auth_token");
       const headers: Record<string, string> = {};

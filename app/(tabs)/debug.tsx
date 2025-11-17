@@ -87,6 +87,18 @@ export default function DebugScreen() {
         method: 'GET',
       },
     },
+    {
+      name: 'tRPC Login (Admin)',
+      url: `${baseUrl}/api/trpc/auth.login`,
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: 'admin@tr.mikelcoffee.com', 
+          password: 'Admin123' 
+        }),
+      },
+    },
   ];
 
   return (
