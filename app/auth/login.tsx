@@ -32,6 +32,7 @@ export default function LoginScreen() {
       const baseUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || '';
       console.log('Base URL:', baseUrl);
       const healthUrl = `${baseUrl}/api/health`;
+      console.log('Note: Backend is mounted at /api, so /api/health maps to /health in Hono');
       console.log('Health URL:', healthUrl);
       const response = await fetch(healthUrl);
       const data = await response.json();

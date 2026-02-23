@@ -26,7 +26,7 @@ app.use("*", async (c, next) => {
 });
 
 app.use(
-  "/api/trpc/*",
+  "/trpc/*",
   trpcServer({
     router: appRouter,
     createContext: async ({ req }) => {
@@ -43,7 +43,7 @@ app.use(
         cause: error.cause,
       });
     },
-    endpoint: '/api/trpc',
+    endpoint: '/trpc',
   })
 );
 
@@ -51,50 +51,21 @@ app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
 });
 
-app.get("/api", (c) => {
-  return c.json({ status: "ok", message: "tRPC API is running" });
-});
-
-app.get("/api/health", (c) => {
+app.get("/health", (c) => {
   return c.json({ 
     status: "ok", 
     timestamp: new Date().toISOString(),
     routes: [
-      "/api/trpc",
-      "/api/trpc/*",
+      "/trpc",
+      "/trpc/*",
     ]
   });
-});
-
-app.post("/api/test", async (c) => {
-  const body = await c.req.json().catch(() => ({}));
-  return c.json({ 
-    status: "ok", 
-    message: "Test endpoint working",
-    receivedBody: body,
-    timestamp: new Date().toISOString(),
-  });
-});
-
-app.post("/api/trpc-test", async (c) => {
-  try {
-    const testData = { 
-      message: "Test",
-      timestamp: new Date().toISOString() 
-    };
-    return c.json(testData, 200, {
-      'Content-Type': 'application/json',
-    });
-  } catch (error) {
-    console.error('❌ Test endpoint error:', error);
-    return c.json({ error: String(error) }, 500);
-  }
 });
 
 app.notFound((c) => {
   const url = new URL(c.req.url);
   console.error(`❌ 404 Not Found: ${c.req.method} ${url.pathname}`);
-  return c.json({ error: "Not Found", path: url.pathname }, 404);
+  return c.json({ error: "Not Found", path: url.pathname, hint: "Routes are mounted at /api by deployment. Internal routes should not include /api prefix." }, 404);
 });
 
 export default app;

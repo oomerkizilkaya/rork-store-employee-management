@@ -13,18 +13,9 @@ async function handleRequest(request: Request): Promise<Response> {
     const modifiedUrl = new URL(request.url);
     let newPath = modifiedUrl.pathname;
     
-    if (!newPath.startsWith('/api/trpc/')) {
-      const match = newPath.match(/\/api\/trpc\/(.*)$/);
-      if (match) {
-        newPath = '/api/trpc/' + match[1];
-      } else if (newPath.includes('/api/trpc')) {
-        const parts = newPath.split('/api/trpc');
-        if (parts[1]) {
-          newPath = '/api/trpc' + parts[1];
-        } else {
-          newPath = '/api/trpc/' + parts[1];
-        }
-      }
+    const trpcMatch = newPath.match(/\/api\/trpc(\/.*)?$/);
+    if (trpcMatch) {
+      newPath = '/trpc' + (trpcMatch[1] || '');
     }
     
     modifiedUrl.pathname = newPath;
