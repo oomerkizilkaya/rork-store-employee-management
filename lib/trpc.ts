@@ -2,6 +2,7 @@ import { createTRPCReact } from "@trpc/react-query";
 import { httpLink, createTRPCClient } from "@trpc/client";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
+import superjson from "superjson";
 import type { AppRouter } from "../backend/trpc/app-router";
 
 type ExpoConfigShape = {
@@ -237,6 +238,7 @@ const createLinks = () => [
   httpLink({
     url: TRPC_URL,
     fetch: customFetch,
+    transformer: superjson,
     async headers() {
       try {
         const { getSecureItem } = await import("../utils/secureStorage");
